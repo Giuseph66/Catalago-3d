@@ -7,8 +7,6 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, '../../uploads');
-const port = process.env.PORT || 3001;
-const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
 
 export const uploadMedia = (req, res) => {
   try {
@@ -30,6 +28,9 @@ export const uploadMedia = (req, res) => {
       return res.status(404).json({ error: 'Produto não encontrado' });
     }
 
+    // Em produção, prefira montar a URL a partir da própria request (respeita https via trust proxy)
+    const inferredBaseUrl = `${req.protocol}://${req.get('host')}`;
+    const baseUrl = process.env.BASE_URL || inferredBaseUrl;
     const url = `${baseUrl}/uploads/${req.file.filename}`;
     const tipo = getMediaType(req.file.filename);
 
