@@ -221,6 +221,7 @@ export const createProduct = (req, res) => {
       profundidade,
       material,
       cor,
+      preco,
       categorias = [],
       tags = [],
       status = 'PRONTA_ENTREGA',

@@ -124,11 +124,13 @@ O frontend estará rodando em `http://localhost:3000`
 
 ## 🔐 Acesso Admin
 
-Após executar o seed, você pode fazer login no painel admin com as credenciais configuradas no `.env`:
+O usuário admin é criado automaticamente quando o servidor inicia pela primeira vez. Você pode fazer login no painel admin com as credenciais configuradas no `.env`:
 
 - **URL**: `http://localhost:3000/admin/login`
-- **Email**: O valor de `ADMIN_EMAIL` no `.env`
-- **Senha**: O valor de `ADMIN_PASSWORD` no `.env`
+- **Email**: O valor de `ADMIN_EMAIL` no `.env` (padrão: `admin@exemplo.com`)
+- **Senha**: O valor de `ADMIN_PASSWORD` no `.env` (padrão: `admin123`)
+
+**Importante:** Altere a senha padrão após o primeiro login em produção!
 
 ## 📝 Funcionalidades Principais
 
@@ -176,12 +178,18 @@ A localização e política local podem ser configuradas em:
 
 ## 📦 Dados Iniciais (Seed)
 
+**Nota:** O usuário admin é criado automaticamente na inicialização do servidor. O seed é opcional e cria apenas dados de exemplo.
+
 O seed cria:
-- 1 usuário admin
 - 3 categorias (Decoração, Utilitários, Jogos)
 - 5 produtos de exemplo
 - 6 depoimentos
 - Configurações padrão
+
+Para executar o seed:
+```bash
+npm run seed
+```
 
 ## 🚀 Deploy
 
@@ -197,7 +205,9 @@ O seed cria:
 1. **Configure a variável de ambiente no Vercel:**
    - Acesse o painel do Vercel
    - Vá em **Settings** → **Environment Variables**
-   - Adicione: `VITE_API_URL` com a URL completa do seu backend (ex: `https://seu-backend.herokuapp.com/api` ou `https://api.seudominio.com/api`)
+   - Adicione: `VITE_API_URL` com a URL completa do seu backend
+   - **⚠️ IMPORTANTE:** Use **HTTPS** na URL da API (ex: `https://api.seudominio.com/api`)
+   - **❌ NÃO use HTTP** se o site estiver em HTTPS - navegadores bloqueiam conteúdo misto (HTTPS tentando carregar HTTP)
 
 2. **Configure o projeto no Vercel:**
    - **Root Directory**: `frontend` (se o frontend está em uma subpasta)
@@ -246,6 +256,23 @@ Em produção, considere:
 
 - Verifique se o arquivo `vercel.json` está na pasta `frontend`
 - O arquivo deve conter a configuração de rewrites para redirecionar todas as rotas para `index.html`
+
+### Erro "Bloqueado carregamento de conteúdo misto" ou "Network Error" no Vercel
+
+Este erro ocorre quando:
+- O site está em HTTPS (ex: `https://mundo-3d.neurelix.com.br`)
+- Mas a API está configurada como HTTP (ex: `http://api-calango-3d.neurelix.com.br`)
+
+**Solução:**
+1. Configure a variável `VITE_API_URL` no Vercel com **HTTPS**:
+   - ❌ Errado: `http://api-calango-3d.neurelix.com.br/api`
+   - ✅ Correto: `https://api-calango-3d.neurelix.com.br/api`
+
+2. Certifique-se de que seu backend também está configurado para HTTPS (SSL/TLS)
+
+3. O código tenta converter automaticamente HTTP para HTTPS, mas é melhor configurar corretamente no Vercel
+
+**Nota:** O código agora detecta automaticamente e tenta converter HTTP para HTTPS quando o site está em HTTPS, mas isso é apenas uma medida de segurança. Configure corretamente no Vercel.
 
 ### Erro de autenticação
 

@@ -68,7 +68,13 @@ export function AuthProvider({ children }) {
       let errorMessage = 'Erro ao fazer login';
       
       if (error.code === 'ERR_NETWORK' || error.message.includes('Network Error')) {
-        errorMessage = 'Não foi possível conectar ao servidor. Verifique se o backend está rodando e acessível.';
+        // Verificar se é erro de conteúdo misto
+        const apiUrl = error.config?.baseURL || '';
+        if (apiUrl.startsWith('http://') && window.location.protocol === 'https:') {
+          errorMessage = 'Erro de configuração: O site está em HTTPS mas a API está configurada como HTTP. Configure VITE_API_URL no Vercel com HTTPS.';
+        } else {
+          errorMessage = 'Não foi possível conectar ao servidor. Verifique se o backend está rodando e acessível.';
+        }
       } else if (error.response?.status === 401) {
         errorMessage = error.response?.data?.error || 'Email ou senha inválidos';
       } else if (error.response?.status === 500) {

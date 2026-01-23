@@ -1,6 +1,25 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+// Função para garantir que a URL da API use HTTPS quando o site está em HTTPS
+function getApiUrl() {
+  let apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+  
+  // Se estiver em produção (HTTPS) e a API URL for HTTP, converter para HTTPS
+  if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+    // Se a URL da API começar com http://, converter para https://
+    if (apiUrl.startsWith('http://') && !apiUrl.includes('localhost')) {
+      apiUrl = apiUrl.replace('http://', 'https://');
+      console.warn('⚠️ API: URL convertida de HTTP para HTTPS:', apiUrl);
+    }
+  }
+  
+  return apiUrl;
+}
+
+const API_URL = getApiUrl();
+
+console.log('🔧 API: URL configurada:', API_URL);
+console.log('🔧 API: Protocolo do site:', typeof window !== 'undefined' ? window.location.protocol : 'N/A');
 
 const api = axios.create({
   baseURL: API_URL,
@@ -38,8 +57,19 @@ api.interceptors.response.use(
       url: error.config?.url,
       status: error.response?.status,
       message: error.message,
+      code: error.code,
       data: error.response?.data
     });
+    
+    // Tratamento específico para erro de conteúdo misto (HTTP em site HTTPS)
+    if (error.code === 'ERR_NETWORK' || error.message.includes('Network Error')) {
+      const apiUrl = error.config?.baseURL || API_URL;
+      if (apiUrl.startsWith('http://') && window.location.protocol === 'https:') {
+        console.error('❌ API: Erro de conteúdo misto detectado!');
+        console.error('❌ API: O site está em HTTPS mas a API está configurada como HTTP');
+        console.error('❌ API: Configure VITE_API_URL no Vercel com HTTPS:', apiUrl.replace('http://', 'https://'));
+      }
+    }
     
     // Só redireciona se for 401 em rotas autenticadas (não no login)
     if (error.response?.status === 401 && !error.config?.url?.includes('/auth/login')) {

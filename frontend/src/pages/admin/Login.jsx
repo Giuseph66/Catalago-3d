@@ -16,10 +16,17 @@ export default function AdminLogin() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Mostrar URL da API para debug
-    const url = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+    // Mostrar URL da API para debug (usando a mesma lógica do api.js)
+    let url = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+    
+    // Se estiver em HTTPS e a URL for HTTP (exceto localhost), converter
+    if (window.location.protocol === 'https:' && url.startsWith('http://') && !url.includes('localhost')) {
+      url = url.replace('http://', 'https://');
+    }
+    
     setApiUrl(url);
     console.log('🔍 Login: URL da API configurada:', url);
+    console.log('🔍 Login: Protocolo do site:', window.location.protocol);
   }, []);
 
   const handleSubmit = async (e) => {
