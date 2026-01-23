@@ -1,17 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
+import api from '../../services/api';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [apiUrl, setApiUrl] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Mostrar URL da API para debug
+    const url = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+    setApiUrl(url);
+    console.log('🔍 Login: URL da API configurada:', url);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -79,6 +88,14 @@ export default function AdminLogin() {
               {loading ? 'Entrando...' : 'Entrar'}
             </Button>
           </form>
+
+          {process.env.NODE_ENV === 'development' && (
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <p className="text-xs text-gray-500 text-center">
+                API URL: {apiUrl}
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

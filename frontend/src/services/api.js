@@ -41,11 +41,15 @@ api.interceptors.response.use(
       data: error.response?.data
     });
     
-    if (error.response?.status === 401) {
+    // Só redireciona se for 401 em rotas autenticadas (não no login)
+    if (error.response?.status === 401 && !error.config?.url?.includes('/auth/login')) {
       console.log('🔒 API: Token inválido, limpando localStorage e redirecionando...');
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/admin/login';
+      // Só redireciona se não estiver já na página de login
+      if (window.location.pathname !== '/admin/login') {
+        window.location.href = '/admin/login';
+      }
     }
     return Promise.reject(error);
   }

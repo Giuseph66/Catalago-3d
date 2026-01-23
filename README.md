@@ -49,12 +49,7 @@ UPLOAD_DIR=./uploads
 NODE_ENV=development
 ```
 
-5. Execute o seed para criar dados iniciais:
-```bash
-npm run seed
-```
-
-6. Inicie o servidor:
+5. Inicie o servidor:
 ```bash
 npm start
 # ou para desenvolvimento com auto-reload:
@@ -62,6 +57,11 @@ npm run dev
 ```
 
 O backend estará rodando em `http://localhost:3001`
+
+**Nota:** O usuário admin é criado automaticamente na primeira inicialização do servidor usando as credenciais do `.env`. Se você quiser criar dados de exemplo (produtos, categorias, depoimentos), execute:
+```bash
+npm run seed
+```
 
 ### Front-end
 
@@ -192,11 +192,33 @@ O seed cria:
 3. Execute `npm run seed` para criar dados iniciais
 4. Inicie com `npm start` ou use PM2/similar
 
-### Front-end
+### Front-end (Vercel)
+
+1. **Configure a variável de ambiente no Vercel:**
+   - Acesse o painel do Vercel
+   - Vá em **Settings** → **Environment Variables**
+   - Adicione: `VITE_API_URL` com a URL completa do seu backend (ex: `https://seu-backend.herokuapp.com/api` ou `https://api.seudominio.com/api`)
+
+2. **Configure o projeto no Vercel:**
+   - **Root Directory**: `frontend` (se o frontend está em uma subpasta)
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+   - **Install Command**: `npm install`
+
+3. **Arquivo `vercel.json`:**
+   - O arquivo `vercel.json` já está configurado na pasta `frontend` para redirecionar todas as rotas para `index.html` (necessário para React Router funcionar)
+
+4. **Importante:**
+   - Certifique-se de que o backend está acessível publicamente
+   - Configure CORS no backend para permitir requisições do domínio do Vercel
+   - O arquivo `vercel.json` resolve o problema de 404 em rotas como `/admin/login`
+
+### Front-end (Outros Serviços)
 
 1. Configure `VITE_API_URL` com a URL do backend em produção
 2. Execute `npm run build`
 3. Sirva a pasta `dist` com um servidor web (nginx, Apache, etc)
+4. Configure o servidor para redirecionar todas as rotas para `index.html` (SPA routing)
 
 ### Uploads
 
@@ -216,8 +238,14 @@ Em produção, considere:
 ### Erro de conexão com API
 
 - Verifique se o backend está rodando
-- Verifique a URL em `VITE_API_URL`
+- Verifique a URL em `VITE_API_URL` (no Vercel, configure como variável de ambiente)
 - Verifique CORS no backend
+- No Vercel: Certifique-se de que a variável `VITE_API_URL` está configurada corretamente nas Environment Variables
+
+### Erro 404 no Vercel (rotas como /admin/login)
+
+- Verifique se o arquivo `vercel.json` está na pasta `frontend`
+- O arquivo deve conter a configuração de rewrites para redirecionar todas as rotas para `index.html`
 
 ### Erro de autenticação
 

@@ -60,11 +60,28 @@ export function AuthProvider({ children }) {
       console.error('❌ AuthContext: Detalhes do erro:', {
         message: error.message,
         response: error.response?.data,
-        status: error.response?.status
+        status: error.response?.status,
+        code: error.code
       });
+      
+      // Tratamento de erros mais específico
+      let errorMessage = 'Erro ao fazer login';
+      
+      if (error.code === 'ERR_NETWORK' || error.message.includes('Network Error')) {
+        errorMessage = 'Não foi possível conectar ao servidor. Verifique se o backend está rodando e acessível.';
+      } else if (error.response?.status === 401) {
+        errorMessage = error.response?.data?.error || 'Email ou senha inválidos';
+      } else if (error.response?.status === 500) {
+        errorMessage = 'Erro interno do servidor. Tente novamente mais tarde.';
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       return {
         success: false,
-        error: error.response?.data?.error || 'Erro ao fazer login'
+        error: errorMessage
       };
     }
   };

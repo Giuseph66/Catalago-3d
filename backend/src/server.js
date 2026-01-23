@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import bcrypt from 'bcrypt';
 import db from './config/database.js';
 
 // Importar rotas
@@ -14,6 +15,29 @@ import mediaRoutes from './routes/media.js';
 import configRoutes from './routes/config.js';
 
 dotenv.config();
+
+// Criar usuário admin automaticamente se não existir
+async function ensureAdminUser() {
+  try {
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@exemplo.com';
+    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    
+    const existingUser = db.prepare('SELECT id FROM users WHERE email = ?').get(adminEmail);
+    
+    if (!existingUser) {
+      console.log('👤 Criando usuário admin automaticamente...');
+      const hashedPassword = await bcrypt.hash(adminPassword, 10);
+      db.prepare('INSERT INTO users (email, password) VALUES (?, ?)').run(adminEmail, hashedPassword);
+      console.log(`✅ Usuário admin criado: ${adminEmail}`);
+      console.log(`🔑 Senha padrão: ${adminPassword}`);
+      console.log('⚠️  IMPORTANTE: Altere a senha após o primeiro login!');
+    } else {
+      console.log(`✅ Usuário admin já existe: ${adminEmail}`);
+    }
+  } catch (error) {
+    console.error('❌ Erro ao criar usuário admin:', error);
+  }
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -51,9 +75,13 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
+// Inicializar servidor
+app.listen(PORT, async () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
   console.log(`📁 Uploads em: ${uploadDir}`);
   console.log(`💾 Banco de dados: ${process.env.DB_PATH || './database.sqlite'}`);
+  
+  // Garantir que o usuário admin existe
+  await ensureAdminUser();
 });
 
