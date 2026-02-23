@@ -31,6 +31,31 @@ export const validateLogin = [
   body('password').notEmpty().withMessage('Senha é obrigatória'),
 ];
 
+export const validateRegister = [
+  body('nome')
+    .trim()
+    .isLength({ min: 2 })
+    .withMessage('Nome deve ter pelo menos 2 caracteres'),
+  body('email').isEmail().withMessage('Email inválido'),
+  body('password')
+    .isLength({ min: 6 })
+    .withMessage('Senha deve ter pelo menos 6 caracteres'),
+];
+
+export const validateUserUpdate = [
+  body('nome')
+    .optional()
+    .trim()
+    .isLength({ min: 2 })
+    .withMessage('Nome deve ter pelo menos 2 caracteres'),
+  body('email').optional().isEmail().withMessage('Email inválido'),
+  body('password')
+    .optional({ checkFalsy: true })
+    .isLength({ min: 6 })
+    .withMessage('Senha deve ter pelo menos 6 caracteres'),
+  body('isActive').optional().isBoolean().withMessage('isActive deve ser true ou false'),
+];
+
 export const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -38,4 +63,3 @@ export const handleValidationErrors = (req, res, next) => {
   }
   next();
 };
-

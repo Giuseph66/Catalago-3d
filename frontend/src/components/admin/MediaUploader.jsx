@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import api from '../../services/api';
 import { FaUpload, FaTrash, FaStar, FaArrowUp, FaArrowDown } from 'react-icons/fa';
+import { normalizeMediaUrl } from '../../utils/formatters';
 
 export default function MediaUploader({ productId, media, onMediaChange }) {
   const [uploading, setUploading] = useState(false);
@@ -95,9 +96,9 @@ export default function MediaUploader({ productId, media, onMediaChange }) {
           {media.map((item, index) => (
             <div key={item.id} className="relative group">
               {item.tipo === 'video' ? (
-                <video src={item.url} className="w-full h-32 object-cover rounded-xl" />
+                <video src={normalizeMediaUrl(item.url)} className="w-full h-32 object-cover rounded-xl" />
               ) : (
-                <img src={item.url} alt={`Mídia ${index + 1}`} className="w-full h-32 object-cover rounded-xl" />
+                <img src={normalizeMediaUrl(item.url)} alt={`Mídia ${index + 1}`} className="w-full h-32 object-cover rounded-xl" />
               )}
               
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity flex items-center justify-center gap-2">

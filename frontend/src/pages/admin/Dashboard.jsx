@@ -44,37 +44,37 @@ export default function AdminDashboard() {
   };
 
   const statCards = [
-    { 
-      icon: FaBox, 
-      label: 'Produtos', 
-      value: stats.products, 
+    {
+      icon: FaBox,
+      label: 'Produtos',
+      value: stats.products,
       color: 'var(--primary)',
       bgColor: 'var(--primary-soft)',
-      link: '/admin/produtos' 
+      link: '/admin/produtos'
     },
-    { 
-      icon: FaTags, 
-      label: 'Categorias', 
-      value: stats.categories, 
+    {
+      icon: FaTags,
+      label: 'Categorias',
+      value: stats.categories,
       color: 'var(--accent)',
       bgColor: 'var(--accent-soft)',
-      link: '/admin/categorias' 
+      link: '/admin/categorias'
     },
-    { 
-      icon: FaComments, 
-      label: 'Depoimentos', 
-      value: stats.testimonials, 
+    {
+      icon: FaComments,
+      label: 'Depoimentos',
+      value: stats.testimonials,
       color: 'var(--warning)',
       bgColor: 'var(--warning-soft)',
-      link: '/admin/depoimentos' 
+      link: '/admin/depoimentos'
     },
-    { 
-      icon: FaEye, 
-      label: 'Visualizações', 
-      value: stats.totalViews, 
+    {
+      icon: FaEye,
+      label: 'Visualizações',
+      value: stats.totalViews,
       color: 'var(--info)',
       bgColor: 'var(--info-soft)',
-      link: null 
+      link: null
     },
   ];
 
@@ -96,14 +96,14 @@ export default function AdminDashboard() {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {statCards.map((stat, i) => {
             const Icon = stat.icon;
             const content = (
               <Card className="hover:shadow-card-hover transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <div 
+                    <div
                       className="w-12 h-12 rounded-lg flex items-center justify-center"
                       style={{ backgroundColor: stat.bgColor }}
                     >

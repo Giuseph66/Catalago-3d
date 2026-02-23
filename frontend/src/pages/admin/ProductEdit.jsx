@@ -22,7 +22,7 @@ export default function AdminProductEdit() {
   const [saving, setSaving] = useState(false);
   const [categories, setCategories] = useState([]);
   const [media, setMedia] = useState([]);
-  
+
   const [formData, setFormData] = useState({
     nome: '',
     slug: '',
@@ -43,6 +43,7 @@ export default function AdminProductEdit() {
     mensagemWhatsAppTemplate: '',
     historiaTitulo: '',
     historiaTexto: '',
+    stlLink: '',
   });
 
   useEffect(() => {
@@ -73,11 +74,11 @@ export default function AdminProductEdit() {
     try {
       const res = await api.get(`/products/admin/${id}`);
       const product = res.data;
-      
-      const precoParaForm = product.precoOriginal != null && product.precoOriginal !== '' 
-        ? product.precoOriginal 
+
+      const precoParaForm = product.precoOriginal != null && product.precoOriginal !== ''
+        ? product.precoOriginal
         : '';
-      
+
       setFormData({
         nome: product.nome || '',
         slug: product.slug || '',
@@ -98,8 +99,9 @@ export default function AdminProductEdit() {
         mensagemWhatsAppTemplate: product.mensagemWhatsAppTemplate || '',
         historiaTitulo: product.historiaTitulo || '',
         historiaTexto: product.historiaTexto || '',
+        stlLink: product.stlLink || '',
       });
-      
+
       setMedia(product.media || []);
     } catch (error) {
       console.error('Erro ao carregar produto:', error);
@@ -112,7 +114,7 @@ export default function AdminProductEdit() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
-    
+
     let precoValue = null;
     if (formData.preco !== null && formData.preco !== undefined && formData.preco !== '') {
       const precoStr = String(formData.preco).trim();
@@ -123,7 +125,7 @@ export default function AdminProductEdit() {
         }
       }
     }
-    
+
     const data = {
       ...formData,
       preco: precoValue,
@@ -392,6 +394,14 @@ export default function AdminProductEdit() {
               onChange={(e) => setFormData({ ...formData, linkMercadoLivre: e.target.value })}
               placeholder="https://produto.mercadolivre.com.br/..."
               hint="Link direto para o produto no Mercado Livre"
+            />
+            <Input
+              label="Link Origem STL"
+              type="url"
+              value={formData.stlLink}
+              onChange={(e) => setFormData({ ...formData, stlLink: e.target.value })}
+              placeholder="https://www.thingiverse.com/thing:..."
+              hint="Link para o arquivo original (Thingiverse, Printables, etc)"
             />
             <Textarea
               label="Template WhatsApp (opcional)"

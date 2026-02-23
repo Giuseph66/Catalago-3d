@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
 import { FaPlus, FaEdit, FaTrash, FaImage, FaSearch } from 'react-icons/fa';
-import { formatPrice } from '../../utils/formatters';
+import { formatPrice, normalizeMediaUrl } from '../../utils/formatters';
 import { Button } from '../../components/ui/Button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/ui/Table';
 import { Badge } from '../../components/ui/Badge';
@@ -133,113 +133,182 @@ export default function AdminProducts() {
           </CardContent>
         </Card>
       ) : (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold" style={{ color: 'var(--text)' }}>
-                {filteredProducts.length} {filteredProducts.length === 1 ? 'produto' : 'produtos'}
-              </h2>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead style={{ width: '115px' }}>Imagem</TableHead>
-                  <TableHead>Nome</TableHead>
-                  <TableHead style={{ width: '120px' }}>Preço</TableHead>
-                  <TableHead style={{ width: '150px' }}>Status</TableHead>
-                  <TableHead style={{ width: '100px' }} className="text-center">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredProducts.map((product) => {
-                  const capa = product.media?.find(m => m.isCapa) || product.media?.[0];
-                  return (
-                    <TableRow key={product.id}>
-                      <TableCell>
-                        {capa ? (
-                          <img
-                            src={capa.url}
-                            alt={product.nome}
-                            className="w-16 h-16 object-cover rounded-input"
-                          />
-                        ) : (
-                          <div className="w-16 h-16 rounded-input flex items-center justify-center" style={{ backgroundColor: '#F1F5F9' }}>
-                            <FaImage style={{ color: 'var(--muted)' }} size={20} />
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {product.destaque && (
-                            <span style={{ color: 'var(--warning)' }} title="Produto em destaque">★</span>
-                          )}
-                          <span className="font-medium" style={{ color: 'var(--text)' }}>
-                            {product.nome}
-                          </span>
-                        </div>
-                        {product.descricaoCurta && (
-                          <p className="text-sm mt-1 line-clamp-1" style={{ color: 'var(--text-2)' }}>
-                            {product.descricaoCurta}
-                          </p>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="font-semibold" style={{ color: 'var(--primary)' }}>
-                          {formatPrice(product.preco || product.peso)}
-                        </div>
-                        <div className="text-xs" style={{ color: 'var(--muted)' }}>
-                          {product.peso}g
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <button
-                          onClick={() => handleToggleStatus(product)}
-                          className="cursor-pointer hover:opacity-80 transition-opacity"
-                          title="Clique para alterar o status"
-                        >
-                          <Badge
-                            variant={
-                              product.status === PRODUCT_STATUS.PRONTA_ENTREGA
-                                ? BADGE_VARIANTS.PRONTA_ENTREGA
-                                : BADGE_VARIANTS.SOB_ENCOMENDA
-                            }
-                          >
-                            {product.status === PRODUCT_STATUS.PRONTA_ENTREGA ? 'Pronta Entrega' : 'Sob Encomenda'}
-                          </Badge>
-                        </button>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center justify-center gap-2">
-                          <Button
-                            as={Link}
-                            to={`/admin/produtos/${product.id}`}
-                            variant="ghost"
-                            size="sm"
-                            className="p-2"
-                            aria-label="Editar"
-                          >
-                            <FaEdit size={16} />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="p-2 text-danger hover:bg-danger-soft"
-                            onClick={() => handleDelete(product.id, product.nome)}
-                            aria-label="Excluir"
-                          >
-                            <FaTrash size={16} />
-                          </Button>
-                        </div>
-                      </TableCell>
+        <div className="space-y-4">
+          <div className="hidden md:block">
+            <Card className="rounded-3xl overflow-hidden border-none shadow-xl shadow-gray-200/50">
+              <CardHeader className="bg-white border-b border-gray-50 px-8 py-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-extrabold text-gray-800">
+                    {filteredProducts.length} {filteredProducts.length === 1 ? 'Produto' : 'Produtos'}
+                  </h2>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0 bg-white">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-gray-50/30">
+                      <TableHead className="py-5 px-8 font-bold text-gray-400 text-[11px] uppercase tracking-widest" style={{ width: '130px' }}>Imagem</TableHead>
+                      <TableHead className="py-5 px-4 font-bold text-gray-400 text-[11px] uppercase tracking-widest">Produto / Detalhes</TableHead>
+                      <TableHead className="py-5 px-4 font-bold text-gray-400 text-[11px] uppercase tracking-widest" style={{ width: '140px' }}>Preço / Peso</TableHead>
+                      <TableHead className="py-5 px-4 font-bold text-gray-400 text-[11px] uppercase tracking-widest" style={{ width: '160px' }}>Status</TableHead>
+                      <TableHead className="py-5 px-8 font-bold text-gray-400 text-[11px] uppercase tracking-widest text-right">Controle</TableHead>
                     </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredProducts.map((product) => {
+                      const capa = product.media?.find(m => m.isCapa) || product.media?.[0];
+                      return (
+                        <TableRow key={product.id} className="hover:bg-primary-50/30 transition-colors border-b border-gray-50 last:border-0 group">
+                          <TableCell className="py-4 px-8">
+                            <div className="relative w-16 h-16 rounded-2xl overflow-hidden shadow-md group-hover:scale-105 transition-transform duration-300">
+                              {capa ? (
+                                <img
+                                  src={normalizeMediaUrl(capa.url)}
+                                  alt={product.nome}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                                  <FaImage className="text-gray-300" size={24} />
+                                </div>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="py-4 px-4">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-gray-800 text-base group-hover:text-primary-600 transition-colors">
+                                  {product.nome}
+                                </span>
+                                {product.destaque && (
+                                  <span className="w-2 h-2 rounded-full bg-orange-400 animate-pulse shadow-[0_0_8px_rgba(251,146,60,0.6)]" title="Destaque" />
+                                )}
+                              </div>
+                              {product.descricaoCurta && (
+                                <p className="text-xs text-gray-400 font-medium line-clamp-1 italic">
+                                  {product.descricaoCurta}
+                                </p>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="py-4 px-4">
+                            <div className="flex flex-col">
+                              <span className="text-lg font-black text-primary-600 tracking-tight">
+                                {formatPrice(product.preco || 0)}
+                              </span>
+                              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
+                                {product.peso}g peso bruto
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="py-4 px-4">
+                            <button
+                              onClick={() => handleToggleStatus(product)}
+                              className="group/badge transition-transform active:scale-95"
+                            >
+                              <Badge
+                                className="px-3 py-1 text-[10px] font-bold tracking-wider uppercase rounded-full shadow-sm group-hover/badge:shadow-md transition-all"
+                                variant={
+                                  product.status === PRODUCT_STATUS.PRONTA_ENTREGA
+                                    ? BADGE_VARIANTS.PRONTA_ENTREGA
+                                    : BADGE_VARIANTS.SOB_ENCOMENDA
+                                }
+                              >
+                                {product.status === PRODUCT_STATUS.PRONTA_ENTREGA ? 'Pronta Entrega' : 'Sob Encomenda'}
+                              </Badge>
+                            </button>
+                          </TableCell>
+                          <TableCell className="py-4 px-8 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <Link
+                                to={`/admin/produtos/${product.id}`}
+                                className="p-2.5 text-primary-500 bg-primary-50 hover:bg-primary-500 hover:text-white rounded-xl transition-all shadow-sm"
+                                title="Editar"
+                              >
+                                <FaEdit size={16} />
+                              </Link>
+                              <button
+                                onClick={() => handleDelete(product.id, product.nome)}
+                                className="p-2.5 text-danger bg-danger-soft hover:bg-danger hover:text-white rounded-xl transition-all shadow-sm"
+                                aria-label="Excluir"
+                              >
+                                <FaTrash size={16} />
+                              </button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Mobile Grid */}
+          <div className="md:hidden grid grid-cols-1 gap-4">
+            {filteredProducts.map((product) => {
+              const capa = product.media?.find(m => m.isCapa) || product.media?.[0];
+              return (
+                <div key={product.id} className="bg-white rounded-[2.5rem] p-5 shadow-xl shadow-gray-200/30 border border-gray-50 space-y-4">
+                  <div className="flex gap-4">
+                    <div className="w-24 h-24 rounded-3xl overflow-hidden shadow-lg shrink-0 border-2 border-white">
+                      {capa ? (
+                        <img
+                          src={normalizeMediaUrl(capa.url)}
+                          alt={product.nome}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                          <FaImage className="text-gray-300" size={32} />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <div className="flex justify-between items-start">
+                        <h3 className="font-extrabold text-gray-800 text-lg leading-tight uppercase tracking-tight">{product.nome}</h3>
+                        {product.destaque && <span className="text-orange-500">★</span>}
+                      </div>
+                      <Badge
+                        className="px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded-lg"
+                        variant={
+                          product.status === PRODUCT_STATUS.PRONTA_ENTREGA
+                            ? BADGE_VARIANTS.PRONTA_ENTREGA
+                            : BADGE_VARIANTS.SOB_ENCOMENDA
+                        }
+                      >
+                        {product.status === PRODUCT_STATUS.PRONTA_ENTREGA ? 'Pronta Entrega' : 'Sob Encomenda'}
+                      </Badge>
+                      <div className="flex items-baseline gap-1 pt-1">
+                        <span className="text-xl font-black text-primary-600">{formatPrice(product.preco || 0)}</span>
+                        <span className="text-[10px] font-bold text-gray-400">{product.peso}g</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 pt-2 border-t border-gray-50">
+                    <Button
+                      as={Link}
+                      to={`/admin/produtos/${product.id}`}
+                      variant="secondary"
+                      className="flex-1 rounded-2xl h-11 text-sm font-bold"
+                      leftIcon={<FaEdit />}
+                    >
+                      Editar
+                    </Button>
+                    <button
+                      onClick={() => handleDelete(product.id, product.nome)}
+                      className="p-3 bg-danger-soft text-danger rounded-2xl hover:brightness-95 transition-all"
+                    >
+                      <FaTrash size={18} />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       )}
     </div>
   );

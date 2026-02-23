@@ -195,10 +195,28 @@ npm run seed
 
 ### Back-end
 
-1. Configure as variáveis de ambiente no servidor
-2. Certifique-se de que a pasta `uploads` existe e tem permissões de escrita
-3. Execute `npm run seed` para criar dados iniciais
-4. Inicie com `npm start` ou use PM2/similar
+1. Configure as variáveis de ambiente no servidor:
+   ```env
+   PORT=3001
+   JWT_SECRET=seu_secret_jwt_aqui_mude_em_producao
+   ADMIN_EMAIL=admin@exemplo.com
+   ADMIN_PASSWORD=senha_segura_aqui
+   DB_PATH=./database.sqlite
+   UPLOAD_DIR=./uploads
+   BASE_URL=https://api-calango-3d.neurelix.com.br  # ⚠️ IMPORTANTE: URL completa do backend (sem /api)
+   NODE_ENV=production
+   ```
+
+2. **⚠️ IMPORTANTE**: Configure `BASE_URL` com a URL completa do seu backend (ex: `https://api-calango-3d.neurelix.com.br`)
+   - Não inclua `/api` no final
+   - Use HTTPS em produção
+   - Isso garante que as URLs das imagens sejam salvas corretamente no banco
+
+3. Certifique-se de que a pasta `uploads` existe e tem permissões de escrita
+
+4. Execute `npm run seed` para criar dados iniciais (opcional)
+
+5. Inicie com `npm start` ou use PM2/similar
 
 ### Front-end (Vercel)
 

@@ -71,8 +71,11 @@ api.interceptors.response.use(
       }
     }
     
-    // Só redireciona se for 401 em rotas autenticadas (não no login)
-    if (error.response?.status === 401 && !error.config?.url?.includes('/auth/login')) {
+    // Token inválido/expirado (401/403): limpa sessão e volta para login
+    if (
+      (error.response?.status === 401 || error.response?.status === 403) &&
+      !error.config?.url?.includes('/auth/login')
+    ) {
       console.log('🔒 API: Token inválido, limpando localStorage e redirecionando...');
       localStorage.removeItem('token');
       localStorage.removeItem('user');
@@ -86,4 +89,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-

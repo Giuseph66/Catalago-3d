@@ -28,11 +28,37 @@ export const uploadMedia = (req, res) => {
       return res.status(404).json({ error: 'Produto não encontrado' });
     }
 
-    // Em produção, prefira montar a URL a partir da própria request (respeita https via trust proxy)
-    const inferredBaseUrl = `${req.protocol}://${req.get('host')}`;
-    const baseUrl = process.env.BASE_URL || inferredBaseUrl;
+    // Gerar URL da mídia
+    // Prioridade: BASE_URL (env) > X-Forwarded-Host/Origin > req.get('host')
+    let baseUrl = process.env.BASE_URL;
+    
+    if (!baseUrl) {
+      // Tentar obter do header X-Forwarded-Host (proxy reverso)
+      const forwardedHost = req.get('X-Forwarded-Host');
+      const forwardedProto = req.get('X-Forwarded-Proto') || req.protocol;
+      
+      if (forwardedHost) {
+        baseUrl = `${forwardedProto}://${forwardedHost}`;
+      } else {
+        // Fallback: usar host da requisição
+        const host = req.get('host');
+        const protocol = req.protocol;
+        baseUrl = `${protocol}://${host}`;
+      }
+    }
+    
+    // Garantir que não tenha /api no final
+    baseUrl = baseUrl.replace(/\/api\/?$/, '');
+    
     const url = `${baseUrl}/uploads/${req.file.filename}`;
     const tipo = getMediaType(req.file.filename);
+    
+    console.log('📤 Backend Media: URL gerada:', url);
+    console.log('📤 Backend Media: BASE_URL env:', process.env.BASE_URL);
+    console.log('📤 Backend Media: req.protocol:', req.protocol);
+    console.log('📤 Backend Media: req.get("host"):', req.get('host'));
+    console.log('📤 Backend Media: X-Forwarded-Host:', req.get('X-Forwarded-Host'));
+    console.log('📤 Backend Media: X-Forwarded-Proto:', req.get('X-Forwarded-Proto'));
 
     // Buscar última ordem
     const lastMedia = db.prepare('SELECT ordem FROM media WHERE produtoId = ? ORDER BY ordem DESC LIMIT 1').get(produtoId);

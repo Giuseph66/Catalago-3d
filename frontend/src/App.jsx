@@ -13,6 +13,9 @@ import AdminProductEdit from './pages/admin/ProductEdit';
 import AdminCategories from './pages/admin/Categories';
 import AdminTestimonials from './pages/admin/Testimonials';
 import AdminSettings from './pages/admin/Settings';
+import AdminProductionQueue from './pages/admin/ProductionQueue';
+import AdminFilaments from './pages/admin/Filaments';
+import AdminUsers from './pages/admin/Users';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -21,14 +24,12 @@ function PrivateRoute({ children }) {
     return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
   }
 
-  const token = localStorage.getItem('token');
-  const userData = localStorage.getItem('user');
-  const isAuthenticated = user || (token && userData);
-
-  if (!isAuthenticated) {
+  if (!user) {
+    console.log('🔒 PrivateRoute: Não autenticado, redirecionando para login');
     return <Navigate to="/admin/login" replace />;
   }
 
+  console.log('✅ PrivateRoute: Autenticado, permitindo acesso');
   return children;
 }
 
@@ -59,6 +60,9 @@ function App() {
             <Route path="produtos/novo" element={<AdminProductEdit />} />
             <Route path="produtos/:id" element={<AdminProductEdit />} />
             <Route path="categorias" element={<AdminCategories />} />
+            <Route path="fila-producao" element={<AdminProductionQueue />} />
+            <Route path="filamentos" element={<AdminFilaments />} />
+            <Route path="usuarios" element={<AdminUsers />} />
             <Route path="depoimentos" element={<AdminTestimonials />} />
             <Route path="configuracoes" element={<AdminSettings />} />
           </Route>
@@ -70,4 +74,3 @@ function App() {
 }
 
 export default App;
-

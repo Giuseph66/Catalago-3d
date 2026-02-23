@@ -10,6 +10,7 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '.
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { Skeleton } from '../../components/ui/Skeleton';
+import { cn } from '../../lib/utils';
 
 export default function AdminTestimonials() {
   const [testimonials, setTestimonials] = useState([]);
@@ -53,7 +54,7 @@ export default function AdminTestimonials() {
         nota: formData.nota ? parseInt(formData.nota) : null,
         produtoId: formData.produtoId || null
       };
-      
+
       if (editingTestimonial) {
         await api.put(`/testimonials/${editingTestimonial.id}`, data);
       } else {
@@ -147,93 +148,150 @@ export default function AdminTestimonials() {
           </CardContent>
         </Card>
       ) : (
-        <Card>
-          <CardHeader>
-            <h2 className="text-lg font-semibold" style={{ color: 'var(--text)' }}>
-              {testimonials.length} {testimonials.length === 1 ? 'depoimento' : 'depoimentos'}
-            </h2>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Cidade</TableHead>
-                  <TableHead className="max-w-md">Texto</TableHead>
-                  <TableHead className="w-24">Nota</TableHead>
-                  <TableHead className="w-24 text-center">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {testimonials.map((testimonial) => (
-                  <TableRow key={testimonial.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        {testimonial.fotoUrl && (
-                          <img
-                            src={testimonial.fotoUrl}
-                            alt={testimonial.nome}
-                            className="w-10 h-10 rounded-full object-cover"
-                          />
-                        )}
-                        <span className="font-medium" style={{ color: 'var(--text)' }}>
-                          {testimonial.nome}
-                        </span>
+        <div className="space-y-4">
+          <div className="hidden md:block">
+            <Card className="rounded-3xl overflow-hidden border-none shadow-xl shadow-gray-200/50">
+              <CardHeader className="bg-white border-b border-gray-50 px-8 py-6">
+                <h2 className="text-xl font-extrabold text-gray-800">
+                  {testimonials.length} {testimonials.length === 1 ? 'Depoimento' : 'Depoimentos'}
+                </h2>
+              </CardHeader>
+              <CardContent className="p-0 bg-white">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-gray-50/30">
+                      <TableHead className="py-5 px-8 font-bold text-gray-400 text-[11px] uppercase tracking-widest">Cliente</TableHead>
+                      <TableHead className="py-5 px-4 font-bold text-gray-400 text-[11px] uppercase tracking-widest">Localização</TableHead>
+                      <TableHead className="py-5 px-4 font-bold text-gray-400 text-[11px] uppercase tracking-widest">Depoimento</TableHead>
+                      <TableHead className="py-5 px-4 font-bold text-gray-400 text-[11px] uppercase tracking-widest">Nota</TableHead>
+                      <TableHead className="py-5 px-8 font-bold text-gray-400 text-[11px] uppercase tracking-widest text-right">Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {testimonials.map((testimonial) => (
+                      <TableRow key={testimonial.id} className="hover:bg-primary-50/30 transition-colors border-b border-gray-50 last:border-0 group">
+                        <TableCell className="py-4 px-8">
+                          <div className="flex items-center gap-3">
+                            {testimonial.fotoUrl ? (
+                              <img
+                                src={testimonial.fotoUrl}
+                                alt={testimonial.nome}
+                                className="w-10 h-10 rounded-full object-cover border-2 border-primary-50 group-hover:scale-110 transition-transform"
+                              />
+                            ) : (
+                              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs font-bold border-2 border-white shadow-sm">
+                                {testimonial.nome.charAt(0)}
+                              </div>
+                            )}
+                            <span className="font-bold text-gray-800 text-base">{testimonial.nome}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="py-4 px-4">
+                          <span className="text-xs font-bold text-gray-500 bg-gray-50 px-2 py-1 rounded-md border border-gray-100 uppercase tracking-tighter">
+                            {testimonial.cidade || 'Não informada'}
+                          </span>
+                        </TableCell>
+                        <TableCell className="py-4 px-4">
+                          <p className="text-sm font-medium text-gray-500 line-clamp-2 max-w-xs italic group-hover:text-gray-700 transition-colors">
+                            "{testimonial.texto}"
+                          </p>
+                        </TableCell>
+                        <TableCell className="py-4 px-4">
+                          <div className="flex gap-0.5">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <FaStar
+                                key={i}
+                                size={12}
+                                className={i < (testimonial.nota || 0) ? "text-orange-400" : "text-gray-200"}
+                              />
+                            ))}
+                          </div>
+                        </TableCell>
+                        <TableCell className="py-4 px-8 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => handleEdit(testimonial)}
+                              className="p-2.5 text-primary-500 bg-primary-50 hover:bg-primary-500 hover:text-white rounded-xl transition-all shadow-sm"
+                              title="Editar"
+                            >
+                              <FaEdit size={16} />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(testimonial.id, testimonial.nome)}
+                              className="p-2.5 text-danger bg-danger-soft hover:bg-danger hover:text-white rounded-xl transition-all shadow-sm"
+                              aria-label="Excluir"
+                            >
+                              <FaTrash size={16} />
+                            </button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="md:hidden grid grid-cols-1 gap-4">
+            {testimonials.map((testimonial) => (
+              <div key={testimonial.id} className="bg-white rounded-[2.5rem] p-6 shadow-xl shadow-gray-200/30 border border-gray-50 space-y-4">
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center gap-3">
+                    {testimonial.fotoUrl ? (
+                      <img
+                        src={testimonial.fotoUrl}
+                        alt={testimonial.nome}
+                        className="w-12 h-12 rounded-full object-cover border-2 border-primary-50"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 font-bold border-2 border-white shadow-inner">
+                        {testimonial.nome.charAt(0)}
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-sm" style={{ color: 'var(--text-2)' }}>
-                        {testimonial.cidade || '—'}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <p className="text-sm line-clamp-2" style={{ color: 'var(--text-2)' }}>
-                        {testimonial.texto}
-                      </p>
-                    </TableCell>
-                    <TableCell>
-                      {testimonial.nota ? (
-                        <div className="flex gap-0.5">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <FaStar
-                              key={i}
-                              size={14}
-                              style={{ color: i < testimonial.nota ? 'var(--warning)' : '#CBD5E1' }}
-                            />
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="text-sm" style={{ color: 'var(--muted)' }}>—</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="p-2"
-                          onClick={() => handleEdit(testimonial)}
-                          aria-label="Editar"
-                        >
-                          <FaEdit size={16} />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="p-2 text-danger hover:bg-danger-soft"
-                          onClick={() => handleDelete(testimonial.id, testimonial.nome)}
-                          aria-label="Excluir"
-                        >
-                          <FaTrash size={16} />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                    )}
+                    <div className="space-y-0.5">
+                      <h3 className="font-extrabold text-gray-800 text-lg leading-none uppercase tracking-tight">{testimonial.nome}</h3>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{testimonial.cidade || 'Global'}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <FaStar
+                          key={i}
+                          size={10}
+                          className={i < (testimonial.nota || 0) ? "text-orange-400" : "text-gray-100"}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50/50 rounded-3xl p-4 border border-gray-100/50 relative">
+                  <span className="absolute -top-2 -left-1 text-4xl text-primary-200/50 font-serif leading-none">“</span>
+                  <p className="text-sm font-medium text-gray-600 leading-relaxed italic relative z-10">
+                    {testimonial.texto}
+                  </p>
+                </div>
+
+                <div className="flex gap-2 pt-1">
+                  <button
+                    onClick={() => handleEdit(testimonial)}
+                    className="flex-1 bg-primary-500 text-white font-black h-12 rounded-2xl shadow-lg shadow-primary-500/30 active:scale-95 transition-all text-sm uppercase tracking-wider flex items-center justify-center gap-2"
+                  >
+                    <FaEdit /> Editar
+                  </button>
+                  <button
+                    onClick={() => handleDelete(testimonial.id, testimonial.nome)}
+                    className="p-3 bg-danger-soft text-danger rounded-2xl active:scale-90 transition-all font-bold"
+                  >
+                    <FaTrash size={18} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       <Modal

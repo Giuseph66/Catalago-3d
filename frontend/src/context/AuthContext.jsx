@@ -1,107 +1,138 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import api from '../services/api';
 
 const AuthContext = createContext(null);
+const TOKEN_CHECK_INTERVAL_MS = 60 * 1000;
+
+const clearStorage = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+};
+
+const decodeTokenPayload = (token) => {
+  try {
+    const payload = token.split('.')[1];
+    if (!payload) return null;
+
+    const normalizedPayload = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const padding = '='.repeat((4 - (normalizedPayload.length % 4)) % 4);
+    const decoded = atob(`${normalizedPayload}${padding}`);
+    return JSON.parse(decoded);
+  } catch {
+    return null;
+  }
+};
+
+export const isTokenExpired = (token) => {
+  if (!token) return true;
+
+  const payload = decodeTokenPayload(token);
+  if (!payload?.exp) return false;
+
+  return Date.now() >= payload.exp * 1000;
+};
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const loadUser = () => {
-      console.log('🔍 AuthContext: Carregando usuário do localStorage...');
-      const token = localStorage.getItem('token');
-      const userData = localStorage.getItem('user');
-      
-      console.log('🔍 AuthContext: Token existe?', !!token);
-      console.log('🔍 AuthContext: UserData existe?', !!userData);
-      
-      if (token && userData) {
-        try {
-          const parsedUser = JSON.parse(userData);
-          console.log('🔍 AuthContext: Usuário carregado:', parsedUser);
-          setUser(parsedUser);
-        } catch (error) {
-          console.error('❌ AuthContext: Erro ao carregar usuário:', error);
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-        }
-      } else {
-        console.log('⚠️ AuthContext: Nenhum usuário encontrado no localStorage');
-      }
-      
-      setLoading(false);
-      console.log('✅ AuthContext: Carregamento concluído');
-    };
+  const applyAuthSession = useCallback((token, userData) => {
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(userData));
+    setUser(userData);
+  }, []);
 
-    loadUser();
+  const logout = useCallback(() => {
+    clearStorage();
+    setUser(null);
   }, []);
 
   const login = async (email, password) => {
-    console.log('🔐 AuthContext: Iniciando login...', { email });
     try {
       const response = await api.post('/auth/login', { email, password });
-      console.log('✅ AuthContext: Resposta do servidor:', response.data);
-      
-      const { token, user } = response.data;
-      
-      // Salvar no localStorage primeiro
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-      console.log('💾 AuthContext: Dados salvos no localStorage');
-      
-      // Atualizar estado
-      setUser(user);
-      console.log('👤 AuthContext: Estado do usuário atualizado:', user);
-      
-      return { success: true, user };
+      const { token, user: userData } = response.data;
+
+      applyAuthSession(token, userData);
+
+      return { success: true, user: userData };
     } catch (error) {
-      console.error('❌ AuthContext: Erro no login:', error);
-      console.error('❌ AuthContext: Detalhes do erro:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-        code: error.code
-      });
-      
-      // Tratamento de erros mais específico
-      let errorMessage = 'Erro ao fazer login';
-      
-      if (error.code === 'ERR_NETWORK' || error.message.includes('Network Error')) {
-        // Verificar se é erro de conteúdo misto
-        const apiUrl = error.config?.baseURL || '';
-        if (apiUrl.startsWith('http://') && window.location.protocol === 'https:') {
-          errorMessage = 'Erro de configuração: O site está em HTTPS mas a API está configurada como HTTP. Configure VITE_API_URL no Vercel com HTTPS.';
-        } else {
-          errorMessage = 'Não foi possível conectar ao servidor. Verifique se o backend está rodando e acessível.';
-        }
-      } else if (error.response?.status === 401) {
-        errorMessage = error.response?.data?.error || 'Email ou senha inválidos';
-      } else if (error.response?.status === 500) {
-        errorMessage = 'Erro interno do servidor. Tente novamente mais tarde.';
-      } else if (error.response?.data?.error) {
-        errorMessage = error.response.data.error;
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-      
+      const apiError = error.response?.data?.error;
+      const validationError = error.response?.data?.errors?.[0]?.msg;
       return {
         success: false,
-        error: errorMessage
+        error: apiError || validationError || 'Erro ao fazer login',
       };
     }
   };
 
-  const logout = () => {
-    console.log('🚪 AuthContext: Fazendo logout...');
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
-    console.log('✅ AuthContext: Logout concluído');
+  const register = async (nome, email, password) => {
+    try {
+      const response = await api.post('/auth/register', { nome, email, password });
+      const { token, user: userData } = response.data;
+
+      applyAuthSession(token, userData);
+
+      return { success: true, user: userData };
+    } catch (error) {
+      const apiError = error.response?.data?.error;
+      const validationError = error.response?.data?.errors?.[0]?.msg;
+      return {
+        success: false,
+        error: apiError || validationError || 'Erro ao cadastrar usuário',
+      };
+    }
   };
 
+  useEffect(() => {
+    const bootstrapAuth = async () => {
+      const token = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+
+      if (!token || !storedUser) {
+        setLoading(false);
+        return;
+      }
+
+      if (isTokenExpired(token)) {
+        logout();
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const res = await api.get('/auth/verify');
+        const verifiedUser = res.data?.user;
+
+        if (!verifiedUser) {
+          logout();
+          setLoading(false);
+          return;
+        }
+
+        applyAuthSession(token, verifiedUser);
+      } catch {
+        logout();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    bootstrapAuth();
+  }, [applyAuthSession, logout]);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      const token = localStorage.getItem('token');
+      if (token && isTokenExpired(token)) {
+        logout();
+      }
+    }, TOKEN_CHECK_INTERVAL_MS);
+
+    return () => clearInterval(intervalId);
+  }, [logout]);
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
@@ -114,4 +145,3 @@ export function useAuth() {
   }
   return context;
 }
-

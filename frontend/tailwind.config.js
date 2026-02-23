@@ -9,6 +9,7 @@ export default {
       colors: {
         // Primary (marca/ação)
         primary: {
+          DEFAULT: '#6366F1',
           100: '#EEF2FF',
           500: '#6366F1',
           600: '#6366F1',
@@ -16,6 +17,7 @@ export default {
         },
         // Accent (tech/detalhe)
         accent: {
+          DEFAULT: '#06B6D4',
           100: '#CFFAFE',
           500: '#06B6D4',
         },

@@ -13,26 +13,39 @@ import categoryRoutes from './routes/categories.js';
 import testimonialRoutes from './routes/testimonials.js';
 import mediaRoutes from './routes/media.js';
 import configRoutes from './routes/config.js';
+import filamentRoutes from './routes/filaments.js';
+import queueRoutes from './routes/queue.js';
 
 dotenv.config();
 
 // Criar usuário admin automaticamente se não existir
 async function ensureAdminUser() {
   try {
+    const adminName = process.env.ADMIN_NAME || 'Administrador';
     const adminEmail = process.env.ADMIN_EMAIL || 'admin@exemplo.com';
     const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
-    
-    const existingUser = db.prepare('SELECT id FROM users WHERE email = ?').get(adminEmail);
-    
+
+    const normalizedEmail = adminEmail.trim().toLowerCase();
+    const existingUser = db.prepare('SELECT id FROM users WHERE email = ?').get(normalizedEmail);
+
     if (!existingUser) {
       console.log('👤 Criando usuário admin automaticamente...');
       const hashedPassword = await bcrypt.hash(adminPassword, 10);
-      db.prepare('INSERT INTO users (email, password) VALUES (?, ?)').run(adminEmail, hashedPassword);
-      console.log(`✅ Usuário admin criado: ${adminEmail}`);
+      db.prepare('INSERT INTO users (nome, email, password, isActive) VALUES (?, ?, ?, 1)')
+        .run(adminName, normalizedEmail, hashedPassword);
+      console.log(`✅ Usuário admin criado: ${normalizedEmail}`);
       console.log(`🔑 Senha padrão: ${adminPassword}`);
       console.log('⚠️  IMPORTANTE: Altere a senha após o primeiro login!');
     } else {
-      console.log(`✅ Usuário admin já existe: ${adminEmail}`);
+      db.prepare(`
+        UPDATE users
+        SET nome = CASE WHEN nome IS NULL OR TRIM(nome) = '' THEN ? ELSE nome END,
+            isActive = 1,
+            updatedAt = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `).run(adminName, existingUser.id);
+
+      console.log(`✅ Usuário admin já existe: ${normalizedEmail}`);
     }
   } catch (error) {
     console.error('❌ Erro ao criar usuário admin:', error);
@@ -65,6 +78,8 @@ app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/config', configRoutes);
+app.use('/api/filaments', filamentRoutes);
+app.use('/api/queue', queueRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -84,8 +99,7 @@ app.listen(PORT, async () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
   console.log(`📁 Uploads em: ${uploadDir}`);
   console.log(`💾 Banco de dados: ${process.env.DB_PATH || './database.sqlite'}`);
-  
+
   // Garantir que o usuário admin existe
   await ensureAdminUser();
 });
-

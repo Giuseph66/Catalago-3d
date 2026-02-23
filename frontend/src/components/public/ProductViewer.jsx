@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { IoChevronBack, IoChevronForward, IoClose } from 'react-icons/io5';
 import { FaPlay } from 'react-icons/fa';
+import { normalizeMediaUrl } from '../../utils/formatters';
 
 export default function ProductViewer({ media, productName }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -80,7 +81,7 @@ export default function ProductViewer({ media, productName }) {
           {selectedMedia.tipo === 'video' ? (
             <video
               ref={videoRef}
-              src={selectedMedia.url}
+              src={normalizeMediaUrl(selectedMedia.url)}
               controls
               autoPlay
               muted
@@ -91,7 +92,7 @@ export default function ProductViewer({ media, productName }) {
             </video>
           ) : (
             <img
-              src={selectedMedia.url}
+              src={normalizeMediaUrl(selectedMedia.url)}
               alt={productName}
               className="w-full h-full object-contain cursor-zoom-in"
               onClick={() => openLightbox(selectedIndex)}
@@ -145,7 +146,7 @@ export default function ProductViewer({ media, productName }) {
                   </div>
                 ) : (
                   <img
-                    src={item.url}
+                    src={normalizeMediaUrl(item.url)}
                     alt={`${productName} - ${index + 1}`}
                     className="w-full h-full object-cover"
                   />
@@ -174,7 +175,7 @@ export default function ProductViewer({ media, productName }) {
             {media[lightboxIndex].tipo === 'video' ? (
               <video
                 ref={lightboxVideoRef}
-                src={media[lightboxIndex].url}
+                src={normalizeMediaUrl(media[lightboxIndex].url)}
                 controls
                 autoPlay
                 muted
@@ -183,7 +184,7 @@ export default function ProductViewer({ media, productName }) {
               />
             ) : (
               <img
-                src={media[lightboxIndex].url}
+                src={normalizeMediaUrl(media[lightboxIndex].url)}
                 alt={productName}
                 className="max-w-full max-h-[90vh] object-contain"
               />

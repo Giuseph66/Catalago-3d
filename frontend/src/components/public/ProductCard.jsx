@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { formatPrice } from '../../utils/formatters';
+import { formatPrice, normalizeMediaUrl } from '../../utils/formatters';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { EmptyState } from '../ui/EmptyState';
@@ -24,7 +24,7 @@ export default function ProductCard({ product, variant = 'default' }) {
         {capa ? (
           <div className={cn('card-img-container overflow-hidden', isCatalog ? 'aspect-[4/5]' : 'aspect-[4/3]')}>
             <img
-              src={capa.url}
+              src={normalizeMediaUrl(capa.url)}
               alt={product.nome}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
