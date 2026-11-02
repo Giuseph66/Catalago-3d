@@ -61,7 +61,7 @@ function createShadowTexture() {
   return new THREE.CanvasTexture(canvas);
 }
 
-export default function ModelViewer({ url, ext = 'stl', color = '#FF5A1F', autoRotate = true, onStats, className, tone = 'dark' }) {
+export default function ModelViewer({ url, ext = 'stl', color = '#FF5A1F', autoRotate = true, onStats, className }) {
   const containerRef = useRef(null);
   const materialRef = useRef(null);
   const statsRef = useRef(onStats);
@@ -100,7 +100,7 @@ export default function ModelViewer({ url, ext = 'stl', color = '#FF5A1F', autoR
       controls.autoRotate = false;
     });
 
-    scene.add(new THREE.HemisphereLight(0xffffff, tone === 'dark' ? 0x1a2f96 : 0x9aa0aa, 1.4));
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x6b6e75, 1.4));
     const key = new THREE.DirectionalLight(0xffffff, 2.2);
     const rim = new THREE.DirectionalLight(0xdce3ff, 1.2);
     scene.add(key, rim);
@@ -166,10 +166,11 @@ export default function ModelViewer({ url, ext = 'stl', color = '#FF5A1F', autoR
         );
         shadow.rotation.x = -Math.PI / 2;
         shadow.position.y = 0.01;
-        const grid = new THREE.GridHelper(footprint * 2.4, 12, 0xffffff, 0xffffff);
+        // A grade usa a cor do texto do fundo onde o visualizador está (claro ou escuro)
+        const gridColor = new THREE.Color(getComputedStyle(container).color);
+        const grid = new THREE.GridHelper(footprint * 2.4, 12, gridColor, gridColor);
         grid.material.transparent = true;
-        grid.material.opacity = tone === 'dark' ? 0.14 : 0.25;
-        if (tone !== 'dark') grid.material.color.set(0x16181d);
+        grid.material.opacity = 0.18;
         scene.add(shadow, grid);
 
         const distance = radius / Math.sin(THREE.MathUtils.degToRad(camera.fov / 2)) * 1.05;
@@ -213,16 +214,15 @@ export default function ModelViewer({ url, ext = 'stl', color = '#FF5A1F', autoR
       renderer.dispose();
       renderer.domElement.remove();
     };
-  }, [url, ext, autoRotate, tone]);
+  }, [url, ext, autoRotate]);
 
   const pct = state.total ? Math.round((state.loaded / state.total) * 100) : null;
-  const overlayText = tone === 'dark' ? 'text-paper' : 'text-ink';
 
   return (
     <div className={cn('relative', className)}>
       <div ref={containerRef} className="absolute inset-0 touch-none [&>canvas]:h-full [&>canvas]:w-full" />
       {state.status === 'loading' && (
-        <div className={cn('absolute inset-0 flex flex-col items-center justify-center gap-3', overlayText)}>
+        <div className={cn('absolute inset-0 flex flex-col items-center justify-center gap-3')}>
           <p className="font-serif text-lg italic opacity-80">
             Baixando modelo{pct !== null ? `… ${pct}%` : state.loaded ? `… ${formatBytes(state.loaded)}` : '…'}
           </p>
@@ -233,7 +233,7 @@ export default function ModelViewer({ url, ext = 'stl', color = '#FF5A1F', autoR
         </div>
       )}
       {state.status === 'error' && (
-        <div className={cn('absolute inset-0 flex items-center justify-center p-6 text-center font-serif text-lg', overlayText)}>
+        <div className={cn('absolute inset-0 flex items-center justify-center p-6 text-center font-serif text-lg')}>
           {state.error}
         </div>
       )}

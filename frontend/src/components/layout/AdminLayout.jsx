@@ -17,6 +17,7 @@ import {
 } from 'react-icons/fa';
 import { Drawer } from '../ui/Drawer';
 import { cn } from '../../lib/utils';
+import { ThemeToggle } from '../ui/ThemeToggle';
 
 const menuItems = [
   { path: '/admin', icon: FaHome, label: 'Visão geral' },
@@ -42,12 +43,12 @@ export function AdminLayout() {
   };
 
   const SidebarContent = () => (
-    <div className="flex h-full flex-col bg-ink text-paper">
+    <div className="flex h-full flex-col bg-night text-on-night">
       <div className="px-6 pb-6 pt-7">
         <Link to="/admin" className="block font-display text-[32px] font-black uppercase leading-none tracking-tight">
           Neurelix 3D
         </Link>
-        <p className="mt-1 font-serif text-base italic text-paper/50">Painel de gestão</p>
+        <p className="mt-1 font-serif text-base italic text-on-night/50">Painel de gestão</p>
       </div>
 
       <nav aria-label="Painel" className="flex-1 overflow-y-auto px-3">
@@ -65,11 +66,11 @@ export function AdminLayout() {
                   aria-current={isActive ? 'page' : undefined}
                   className={cn(
                     'relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] font-medium transition-colors',
-                    isActive ? 'bg-paper/10 text-paper' : 'text-paper/60 hover:bg-paper/5 hover:text-paper'
+                    isActive ? 'bg-on-night/10 text-on-night' : 'text-on-night/60 hover:bg-on-night/5 hover:text-on-night'
                   )}
                 >
-                  {isActive && <span className="absolute -left-3 top-2 bottom-2 w-1 rounded-r bg-[#5B74F0]" />}
-                  <Icon size={15} className={isActive ? 'text-[#8FA2FF]' : 'text-paper/40'} />
+                  {isActive && <span className="absolute -left-3 top-2 bottom-2 w-1 rounded-r bg-filament" />}
+                  <Icon size={15} className={isActive ? 'text-filament' : 'text-on-night/40'} />
                   {item.label}
                 </Link>
               </li>
@@ -78,24 +79,28 @@ export function AdminLayout() {
         </ul>
       </nav>
 
-      <div className="space-y-1 border-t border-paper/10 p-3">
+      <div className="space-y-1 border-t border-on-night/10 p-3">
+        <ThemeToggle
+          withLabel
+          className="w-full rounded-lg px-3 py-2.5 text-left text-[15px] font-medium text-on-night/60 hover:bg-on-night/5 hover:text-on-night"
+        />
         <a
           href="/"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] font-medium text-paper/60 hover:bg-paper/5 hover:text-paper"
+          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] font-medium text-on-night/60 hover:bg-on-night/5 hover:text-on-night"
         >
-          <FaExternalLinkAlt size={13} className="text-paper/40" />
+          <FaExternalLinkAlt size={13} className="text-on-night/40" />
           Ver o site
         </a>
         <button
           type="button"
           onClick={handleLogout}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[15px] font-medium text-paper/60 hover:bg-paper/5 hover:text-paper"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[15px] font-medium text-on-night/60 hover:bg-on-night/5 hover:text-on-night"
         >
-          <FaSignOutAlt size={14} className="text-paper/40" />
+          <FaSignOutAlt size={14} className="text-on-night/40" />
           Sair
-          {user?.email && <span className="ml-auto truncate text-xs text-paper/35">{user.email}</span>}
+          {user?.email && <span className="ml-auto truncate text-xs text-on-night/35">{user.email}</span>}
         </button>
       </div>
     </div>
@@ -103,11 +108,11 @@ export function AdminLayout() {
 
   return (
     <div className="min-h-screen bg-paper">
-      <header className="sticky top-0 z-40 flex h-14 items-center justify-between bg-ink px-4 text-paper lg:hidden">
+      <header className="sticky top-0 z-40 flex h-14 items-center justify-between bg-night px-4 text-on-night lg:hidden">
         <button
           type="button"
           onClick={() => setSidebarOpen(true)}
-          className="-ml-2 rounded-lg p-2 hover:bg-paper/10"
+          className="-ml-2 rounded-lg p-2 hover:bg-on-night/10"
           aria-label="Abrir menu"
         >
           <FaBars />
@@ -116,7 +121,7 @@ export function AdminLayout() {
         <button
           type="button"
           onClick={handleLogout}
-          className="-mr-2 rounded-lg p-2 hover:bg-paper/10"
+          className="-mr-2 rounded-lg p-2 hover:bg-on-night/10"
           aria-label="Sair"
         >
           <FaSignOutAlt />
@@ -132,7 +137,7 @@ export function AdminLayout() {
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
           side="left"
-          className="max-w-[17rem] bg-ink"
+          className="max-w-[17rem] bg-night"
         >
           <div className="h-full">
             <SidebarContent />

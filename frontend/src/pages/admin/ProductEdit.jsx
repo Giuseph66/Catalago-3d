@@ -326,7 +326,7 @@ export default function AdminProductEdit() {
               <p className="mt-1 truncate text-sm text-ink/55">{modelo.arquivo} ({formatBytes(modelo.tamanho)})</p>
             </CardHeader>
             <CardContent>
-              <div className="relative aspect-video overflow-hidden rounded-card bg-cobalt">
+              <div className="relative aspect-video overflow-hidden rounded-card bg-cover text-on-cover">
                 <Suspense fallback={null}>
                   <ModelViewer url={modelo.url} ext={modelo.arquivo.split('.').pop().toLowerCase()} className="absolute inset-0" />
                 </Suspense>

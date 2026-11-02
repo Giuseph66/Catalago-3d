@@ -112,7 +112,7 @@ export default function ProductDetail() {
           </div>
 
           <aside className="self-start lg:sticky lg:top-24 lg:col-span-5">
-            <p className={cn('font-serif text-lg italic', pronta ? 'text-[#2F7D4F]' : 'text-ink/60')}>
+            <p className={cn('font-serif text-lg italic', pronta ? 'text-ok' : 'text-ink/60')}>
               {pronta ? 'Pronta entrega' : 'Sob encomenda'}
             </p>
             <h1 className="mt-2 font-display text-5xl font-black leading-[0.9] md:text-7xl">{product.nome}</h1>
@@ -127,7 +127,7 @@ export default function ProductDetail() {
                   href={whatsapp}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex h-14 items-center justify-center rounded-full bg-ink px-8 font-display text-xl font-extrabold text-paper transition-colors hover:bg-cobalt"
+                  className="inline-flex h-14 items-center justify-center rounded-full bg-ink px-8 font-display text-xl font-extrabold text-paper transition-colors hover:bg-primary-700"
                 >
                   {pronta ? 'Comprar pelo WhatsApp' : 'Encomendar pelo WhatsApp'}
                 </a>

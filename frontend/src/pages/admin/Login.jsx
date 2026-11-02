@@ -44,7 +44,7 @@ export default function AdminLogin() {
 
   return (
     <div className="grid min-h-screen bg-paper lg:grid-cols-2">
-      <div className="relative hidden overflow-hidden bg-cobalt text-paper lg:block">
+      <div className="relative hidden overflow-hidden bg-cover text-on-cover lg:block">
         <p className="absolute left-10 top-8 font-display text-[40px] font-black uppercase leading-none tracking-tight">
           Neurelix 3D
         </p>
@@ -53,7 +53,7 @@ export default function AdminLogin() {
           alt=""
           className="turntable-still absolute inset-x-0 bottom-0 mx-auto h-[82%] object-contain"
         />
-        <p className="absolute bottom-8 left-10 max-w-xs font-serif text-lg italic text-paper/80">
+        <p className="absolute bottom-8 left-10 max-w-xs font-serif text-lg italic text-on-cover/70">
           Produtos, fila de produção e filamentos em um lugar só.
         </p>
       </div>

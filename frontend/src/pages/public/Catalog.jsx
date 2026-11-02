@@ -306,20 +306,20 @@ export default function Catalog() {
         )}
       </section>
 
-      <section className="bg-cobalt text-paper">
+      <section className="bg-cover text-on-cover">
         <div className="mx-auto grid max-w-[1440px] gap-6 px-4 py-16 sm:px-8 md:grid-cols-12 md:items-end md:py-20">
-          <h2 className="font-display text-5xl font-black leading-[0.88] text-paper md:col-span-6 md:text-7xl">
+          <h2 className="font-display text-5xl font-black leading-[0.88] text-on-cover md:col-span-6 md:text-7xl">
             Não achou a peça? A gente faz sob medida.
           </h2>
           <div className="md:col-span-5 md:col-start-8">
-            <p className="font-serif text-xl leading-relaxed text-paper/85">
+            <p className="font-serif text-xl leading-relaxed text-on-cover/80">
               Mande uma foto, um desenho ou a medida que você precisa. Respondemos com orçamento e prazo.
             </p>
             <a
               href={sobMedida || '/'}
               target={sobMedida ? '_blank' : undefined}
               rel={sobMedida ? 'noopener noreferrer' : undefined}
-              className="mt-6 inline-flex h-14 items-center rounded-full bg-paper px-8 font-display text-xl font-extrabold text-cobalt transition-colors hover:bg-white"
+              className="mt-6 inline-flex h-14 items-center rounded-full bg-ink px-8 font-display text-xl font-extrabold text-paper transition-colors hover:bg-primary-700"
             >
               Pedir orçamento pelo WhatsApp
             </a>

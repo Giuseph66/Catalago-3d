@@ -193,6 +193,34 @@ npm run seed
 
 ## 🚀 Deploy
 
+### Servidor local — executável
+
+Na raiz do projeto:
+
+```bash
+./deploy-backend.sh --auto          # deploy e atualização automática a cada minuto
+./deploy-backend.sh                 # deploy manual do origin/main
+./deploy-backend.sh --status        # commit, serviço, timer e saúde da API
+./deploy-backend.sh --disable-auto  # desativa somente atualização automática
+```
+
+O servidor `kali@192.168.0.35` busca o código de `origin/main` em
+`/home/kali/progetos/Catalago-3d`. Faça commit e push para publicar alterações;
+arquivos locais sem push não entram no deploy. A conexão usa a chave SSH já configurada.
+Outro endereço pode ser informado por `CATALOGO_SSH_HOST`.
+
+O backend roda como `catalogo-3d-backend.service` no systemd do usuário, porta 3066.
+O atalho XFCE existente inicia esse mesmo serviço. Serviço e timer iniciam com a
+sessão do usuário no servidor; não dependem de manter este computador ligado.
+O deploy preserva `.env`, uploads e SQLite, cria backups privados em
+`~/.local/state/catalogo-3d/backups/` e prepara dependências antes do reinício.
+Falhas após a troca de código acionam retorno ao commit anterior; o banco não é
+restaurado automaticamente. Mudanças de schema exigem compatibilidade com rollback.
+Alterações versionadas locais ou histórico divergente no servidor bloqueiam o deploy.
+
+Logs: `backend/server.log` e
+`journalctl --user -u catalogo-3d-deploy.service` no servidor.
+
 ### Back-end
 
 1. Configure as variáveis de ambiente no servidor:

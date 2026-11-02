@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import { FiMenu, FiX } from 'react-icons/fi';
 import { useSiteConfig, whatsappUrl } from '../../hooks/useSiteConfig';
 import { cn } from '../../lib/utils';
+import { ThemeToggle } from '../ui/ThemeToggle';
 
 const LINKS = [
   { to: '/catalogo', label: 'Catálogo' },
@@ -49,11 +50,12 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle className="h-10 w-10 justify-center rounded-full text-ink/70 hover:bg-ink/5 hover:text-ink" />
           <a
             href={encomendar || '/catalogo'}
             target={encomendar ? '_blank' : undefined}
             rel={encomendar ? 'noopener noreferrer' : undefined}
-            className="hidden h-10 items-center rounded-full bg-ink px-5 font-display text-lg font-extrabold text-paper transition-colors hover:bg-cobalt sm:inline-flex"
+            className="hidden h-10 items-center rounded-full bg-ink px-5 font-display text-lg font-extrabold text-paper transition-colors hover:bg-primary-700 sm:inline-flex"
           >
             Encomendar
           </a>

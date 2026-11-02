@@ -62,9 +62,9 @@ function TreeFolder({ node, ctx }) {
           className="flex min-w-0 flex-1 items-center gap-2 py-1 pr-2 text-left"
         >
           {open ? (
-            <FaFolderOpen size={14} className={cn('shrink-0', selected ? 'text-[#8FA2FF]' : 'text-cobalt/70')} />
+            <FaFolderOpen size={14} className={cn('shrink-0', selected ? 'text-filament' : 'text-ink/45')} />
           ) : (
-            <FaFolder size={14} className={cn('shrink-0', selected ? 'text-[#8FA2FF]' : 'text-cobalt/70')} />
+            <FaFolder size={14} className={cn('shrink-0', selected ? 'text-filament' : 'text-ink/45')} />
           )}
           <span className="truncate">{node.name}</span>
           {ctx.imported.has(node.path) && <ImportedDot inverted={selected} />}
@@ -171,7 +171,7 @@ function FolderListing({ tree, index, cwd, setCwd, ctx, repoName }) {
                 onClick={() => open(child)}
                 className={cn('flex w-full items-center gap-3 px-3 py-2 text-left text-sm', selected ? 'bg-ink/[0.06] font-semibold' : 'hover:bg-ink/5')}
               >
-                <FaFolder size={14} className="shrink-0 text-cobalt/70" />
+                <FaFolder size={14} className="shrink-0 text-ink/45" />
                 <span className="truncate">{child.name}</span>
                 {ctx.imported.has(child.path) && <ImportedDot />}
                 <span className="ml-auto shrink-0 text-xs text-ink/45">
@@ -316,7 +316,7 @@ export default function RepoBrowser({ tree, index, repoName, imported, selectedP
                   }}
                   className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[14px] hover:bg-ink/5"
                 >
-                  <FaFolder size={14} className="shrink-0 text-cobalt/70" />
+                  <FaFolder size={14} className="shrink-0 text-ink/45" />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate">{node.name}</span>
                     <span className="block truncate text-xs text-ink/40">{node.path}</span>

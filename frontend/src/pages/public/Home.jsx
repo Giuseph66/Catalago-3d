@@ -124,9 +124,9 @@ export default function Home() {
     <MotionConfig reducedMotion="user">
       <div className="bg-paper text-ink">
         {/* Capa */}
-        <section className="relative overflow-hidden bg-cobalt text-paper">
+        <section className="relative overflow-hidden bg-cover text-on-cover">
           <div className="mx-auto max-w-[1440px] px-4 pb-12 pt-5 sm:px-8 lg:pb-16">
-            <div className="flex items-baseline justify-between font-serif text-sm text-paper/80 md:text-base">
+            <div className="flex items-baseline justify-between font-serif text-sm text-on-cover/80 md:text-base">
               <span>Sinop, Mato Grosso</span>
               <span className="first-letter:uppercase">{edicao}</span>
             </div>
@@ -135,7 +135,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, ease }}
-              className="relative z-0 mt-4 whitespace-nowrap text-center font-display font-black uppercase leading-[0.8] tracking-[-0.01em] text-paper text-[18.5vw] min-[1440px]:text-[266px]"
+              className="relative z-0 mt-4 whitespace-nowrap text-center font-display font-black uppercase leading-[0.8] tracking-[-0.01em] text-on-cover text-[18.5vw] min-[1440px]:text-[266px]"
             >
               Catálogo 3D
             </motion.h1>
@@ -151,7 +151,7 @@ export default function Home() {
                   alt="Vaso torcido impresso em PLA laranja"
                   className="mx-auto aspect-[3/4] w-[78%] sm:w-[60%] lg:w-full"
                 />
-                <p className="-mt-6 text-center font-serif text-sm italic text-paper/75">
+                <p className="-mt-6 text-center font-serif text-sm italic text-on-cover/75">
                   Na capa: vaso torcido em PLA laranja. Arraste para girar.
                 </p>
               </motion.div>
@@ -160,20 +160,20 @@ export default function Home() {
                 <p className="font-display text-5xl font-extrabold leading-[0.92] md:text-6xl">
                   Feito camada por camada, aqui em Sinop.
                 </p>
-                <p className="mt-5 max-w-md font-serif text-lg leading-relaxed text-paper/85 md:text-xl">
+                <p className="mt-5 max-w-md font-serif text-lg leading-relaxed text-on-cover/85 md:text-xl">
                   Presentes, decoração e peças sob medida em impressão 3D. Escolha no catálogo ou mande a sua ideia.
                 </p>
                 <div className="mt-8 flex flex-col gap-3 whitespace-nowrap sm:flex-row sm:flex-wrap">
                   <Link
                     to="/catalogo"
-                    className="inline-flex h-14 items-center justify-center rounded-full bg-paper px-8 font-display text-xl font-extrabold text-cobalt transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-paper focus-visible:ring-offset-2 focus-visible:ring-offset-cobalt"
+                    className="inline-flex h-14 items-center justify-center rounded-full bg-ink px-8 font-display text-xl font-extrabold text-paper transition-colors hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-cover"
                   >
                     Ver o catálogo
                   </Link>
                   <button
                     type="button"
                     onClick={handleWhatsApp}
-                    className="inline-flex h-14 items-center justify-center rounded-full border-2 border-paper/70 px-8 font-display text-xl font-extrabold text-paper transition-colors hover:border-paper hover:bg-paper/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-paper"
+                    className="inline-flex h-14 items-center justify-center rounded-full border-2 border-on-cover/60 px-8 font-display text-xl font-extrabold text-on-cover transition-colors hover:border-on-cover hover:bg-on-cover/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-on-cover"
                   >
                     Pedir pelo WhatsApp
                   </button>
@@ -188,7 +188,7 @@ export default function Home() {
                         <span className="block font-display text-3xl font-extrabold leading-none group-hover:underline group-hover:decoration-2 group-hover:underline-offset-4">
                           {line.title}
                         </span>
-                        <span className="mt-1 block font-serif text-base text-paper/75">{line.text}</span>
+                        <span className="mt-1 block font-serif text-base text-on-cover/75">{line.text}</span>
                       </a>
                     </li>
                   ))}
@@ -268,7 +268,7 @@ export default function Home() {
               <ol className="mt-10 border-t border-ink/15">
                 {STEPS.map((step, index) => (
                   <li key={step.title} className="grid grid-cols-[3rem_1fr] gap-2 border-b border-ink/15 py-5">
-                    <span className="font-display text-3xl font-black leading-none text-cobalt">{index + 1}</span>
+                    <span className="font-display text-3xl font-black leading-none text-filament">{index + 1}</span>
                     <div>
                       <h3 className="font-display text-2xl font-extrabold leading-none">{step.title}</h3>
                       <p className="mt-2 font-serif text-base leading-relaxed text-ink/75">{step.text}</p>
@@ -383,7 +383,7 @@ export default function Home() {
         )}
 
         {/* Contracapa */}
-        <section className="overflow-hidden bg-[#C9CED6]">
+        <section className="overflow-hidden bg-cover text-on-cover">
           <div className="mx-auto grid max-w-[1440px] items-center gap-6 px-4 pt-16 sm:px-8 lg:grid-cols-12 lg:pt-0">
             <div className="lg:col-span-5 lg:py-24">
               <h2 className="font-display text-6xl font-black leading-[0.86] md:text-8xl">
@@ -395,7 +395,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => openWhatsApp('Olá! Tenho uma ideia de peça para imprimir. Sou de Sinop-MT.')}
-                className="mt-9 inline-flex h-14 items-center justify-center rounded-full bg-ink px-8 font-display text-xl font-extrabold text-paper transition-colors hover:bg-cobalt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-[#C9CED6]"
+                className="mt-9 inline-flex h-14 items-center justify-center rounded-full bg-ink px-8 font-display text-xl font-extrabold text-paper transition-colors hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-cover"
               >
                 Pedir orçamento pelo WhatsApp
               </button>

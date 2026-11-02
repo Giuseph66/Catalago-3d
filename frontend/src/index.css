@@ -2,31 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Tema Grafite. Dia: padrão. Noite: modo escuro do aparelho ou escolha manual (data-theme). */
 :root {
-  /* Neutros */
-  --bg: #ECEEF1;
-  --surface: #FFFFFF;
-  --border: #D9DCE2;
-  --text: #16181D;
-  --text-2: #4A4F5A;
-  --muted: #6B717C;
+  --c-paper: 246 246 245;
+  --c-surface: 255 255 255;
+  --c-ink: 18 19 22;
+  --c-text-2: 70 72 78;
+  --c-muted: 107 110 117;
+  --c-line: 221 222 225;
+  --c-soft: 233 234 236;
+  --c-cover: 231 232 235;
+  --c-on-cover: 18 19 22;
+  --c-night: 18 19 22;
+  --c-on-night: 236 238 241;
+  --c-primary: 18 19 22;
+  --c-primary-700: 46 48 54;
+  --c-on-primary: 246 246 245;
+  --c-primary-50: 241 241 242;
+  --c-primary-100: 233 234 236;
+  --c-primary-200: 213 215 219;
+  --c-primary-400: 107 110 117;
+  --c-filament: 255 90 31;
+  --c-filament-soft: 255 230 219;
+  --c-ok: 47 125 79;
+  --c-success: 22 163 74;
+  --c-success-soft: 220 252 231;
+  --c-success-ink: 22 101 52;
+  --c-warning: 245 158 11;
+  --c-warning-soft: 254 243 199;
+  --c-warning-ink: 146 64 14;
+  --c-info: 124 58 237;
+  --c-info-soft: 237 233 254;
+  --c-info-ink: 91 33 182;
+  --c-danger: 220 38 38;
+  --c-danger-soft: 254 226 226;
+  --c-gray-50: 250 250 250;
+  --c-gray-100: 244 244 245;
+  --c-gray-200: 228 228 231;
+  --c-gray-300: 212 212 216;
+  --c-gray-400: 161 161 170;
+  --c-gray-500: 113 113 122;
+  --c-gray-600: 82 82 91;
+  --c-gray-700: 63 63 70;
+  --c-gray-800: 39 39 42;
+  --c-gray-900: 24 24 27;
+  color-scheme: light;
 
-  /* Marca */
-  --primary: #2340C8;
-  --primary-hover: #1A2F96;
-  --primary-soft: #E4E9FB;
-  --accent: #FF5A1F;
-  --accent-soft: #FFE6DB;
-
-  /* Estados */
-  --success: #16A34A;
-  --success-soft: #DCFCE7;
-  --warning: #F59E0B;
-  --warning-soft: #FEF3C7;
-  --info: #7C3AED;
-  --info-soft: #EDE9FE;
-  --danger: #DC2626;
-  --danger-soft: #FEE2E2;
+  /* Nomes antigos, usados em estilos inline do painel */
+  --bg: rgb(var(--c-paper));
+  --surface: rgb(var(--c-surface));
+  --border: rgb(var(--c-line));
+  --text: rgb(var(--c-ink));
+  --text-2: rgb(var(--c-text-2));
+  --muted: rgb(var(--c-muted));
+  --primary: rgb(var(--c-primary));
+  --primary-hover: rgb(var(--c-primary-700));
+  --primary-soft: rgb(var(--c-primary-100));
+  --on-primary: rgb(var(--c-on-primary));
+  --accent: rgb(var(--c-filament));
+  --accent-soft: rgb(var(--c-filament-soft));
+  --success: rgb(var(--c-success));
+  --success-soft: rgb(var(--c-success-soft));
+  --warning: rgb(var(--c-warning));
+  --warning-soft: rgb(var(--c-warning-soft));
+  --info: rgb(var(--c-info));
+  --info-soft: rgb(var(--c-info-soft));
+  --danger: rgb(var(--c-danger));
+  --danger-soft: rgb(var(--c-danger-soft));
 
   /* Layout */
   --radius-card: 12px;
@@ -34,10 +76,104 @@
   --radius-button: 9999px;
   --radius-chip: 9999px;
 
-  --shadow-card: 0 1px 2px rgba(22, 24, 29, 0.06);
-  --shadow-hover: 0 6px 20px rgba(22, 24, 29, 0.08);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.10);
 
-  --focus: 0 0 0 3px rgba(35, 64, 200, 0.2);
+  --focus: 0 0 0 3px rgb(var(--c-ink) / 0.18);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --c-paper: 18 19 22;
+    --c-surface: 26 28 32;
+    --c-ink: 231 232 234;
+    --c-text-2: 180 183 189;
+    --c-muted: 141 144 152;
+    --c-line: 44 47 53;
+    --c-soft: 27 29 33;
+    --c-cover: 28 30 35;
+    --c-on-cover: 236 238 241;
+    --c-night: 11 12 14;
+    --c-on-night: 236 238 241;
+    --c-primary: 236 238 241;
+    --c-primary-700: 255 255 255;
+    --c-on-primary: 18 19 22;
+    --c-primary-50: 31 33 38;
+    --c-primary-100: 37 40 46;
+    --c-primary-200: 58 61 68;
+    --c-primary-400: 154 157 164;
+    --c-filament: 255 106 51;
+    --c-filament-soft: 58 34 24;
+    --c-ok: 111 211 154;
+    --c-success: 74 222 128;
+    --c-success-soft: 21 51 33;
+    --c-success-ink: 74 222 128;
+    --c-warning: 251 191 36;
+    --c-warning-soft: 58 46 18;
+    --c-warning-ink: 251 191 36;
+    --c-info: 167 139 250;
+    --c-info-soft: 42 33 64;
+    --c-info-ink: 196 181 253;
+    --c-danger: 248 113 113;
+    --c-danger-soft: 59 26 26;
+    --c-gray-50: 33 35 40;
+    --c-gray-100: 39 41 46;
+    --c-gray-200: 52 54 60;
+    --c-gray-300: 70 72 79;
+    --c-gray-400: 113 116 124;
+    --c-gray-500: 150 153 160;
+    --c-gray-600: 180 182 188;
+    --c-gray-700: 205 207 212;
+    --c-gray-800: 225 226 229;
+    --c-gray-900: 240 240 242;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --c-paper: 18 19 22;
+  --c-surface: 26 28 32;
+  --c-ink: 231 232 234;
+  --c-text-2: 180 183 189;
+  --c-muted: 141 144 152;
+  --c-line: 44 47 53;
+  --c-soft: 27 29 33;
+  --c-cover: 28 30 35;
+  --c-on-cover: 236 238 241;
+  --c-night: 11 12 14;
+  --c-on-night: 236 238 241;
+  --c-primary: 236 238 241;
+  --c-primary-700: 255 255 255;
+  --c-on-primary: 18 19 22;
+  --c-primary-50: 31 33 38;
+  --c-primary-100: 37 40 46;
+  --c-primary-200: 58 61 68;
+  --c-primary-400: 154 157 164;
+  --c-filament: 255 106 51;
+  --c-filament-soft: 58 34 24;
+  --c-ok: 111 211 154;
+  --c-success: 74 222 128;
+  --c-success-soft: 21 51 33;
+  --c-success-ink: 74 222 128;
+  --c-warning: 251 191 36;
+  --c-warning-soft: 58 46 18;
+  --c-warning-ink: 251 191 36;
+  --c-info: 167 139 250;
+  --c-info-soft: 42 33 64;
+  --c-info-ink: 196 181 253;
+  --c-danger: 248 113 113;
+  --c-danger-soft: 59 26 26;
+  --c-gray-50: 33 35 40;
+  --c-gray-100: 39 41 46;
+  --c-gray-200: 52 54 60;
+  --c-gray-300: 70 72 79;
+  --c-gray-400: 113 116 124;
+  --c-gray-500: 150 153 160;
+  --c-gray-600: 180 182 188;
+  --c-gray-700: 205 207 212;
+  --c-gray-800: 225 226 229;
+  --c-gray-900: 240 240 242;
+  color-scheme: dark;
 }
 
 * {
@@ -78,7 +214,7 @@ h2 {
   /* Botões */
   .btn-primary {
     background-color: var(--primary);
-    color: white;
+    color: var(--on-primary);
     font-weight: 600;
     padding: 0.875rem 1.5rem;
     border-radius: var(--radius-button);
@@ -154,7 +290,7 @@ h2 {
   }
 
   .card-img-container {
-    background-color: #F1F5F9;
+    background-color: rgb(var(--c-soft));
     border-radius: var(--radius-card);
     overflow: hidden;
   }
@@ -162,7 +298,7 @@ h2 {
   /* Chips de Status */
   .chip-destaque {
     background-color: var(--warning-soft);
-    color: #92400E;
+    color: rgb(var(--c-warning-ink));
     padding: 0.25rem 0.75rem;
     border-radius: var(--radius-chip);
     font-size: 0.75rem;
@@ -171,7 +307,7 @@ h2 {
 
   .chip-pronta-entrega {
     background-color: var(--success-soft);
-    color: #166534;
+    color: rgb(var(--c-success-ink));
     padding: 0.25rem 0.75rem;
     border-radius: var(--radius-chip);
     font-size: 0.75rem;
@@ -180,7 +316,7 @@ h2 {
 
   .chip-sob-encomenda {
     background-color: var(--info-soft);
-    color: #5B21B6;
+    color: rgb(var(--c-info-ink));
     padding: 0.25rem 0.75rem;
     border-radius: var(--radius-chip);
     font-size: 0.75rem;
@@ -208,7 +344,7 @@ h2 {
   }
 
   .clean-table thead {
-    background-color: #F4F5F7;
+    background-color: rgb(var(--c-gray-50));
     border-bottom: 1px solid var(--border);
   }
 
@@ -233,7 +369,7 @@ h2 {
   }
 
   .clean-table tbody tr:hover {
-    background-color: #F7F8FA;
+    background-color: rgb(var(--c-gray-100));
   }
 
   .clean-table tbody tr:last-child {
@@ -300,7 +436,7 @@ h2 {
   font-size: 5.4em;
   line-height: 0.78;
   margin: 0.06em 0.08em 0 0;
-  color: #2340C8;
+  color: rgb(var(--c-filament));
 }
 
 .turntable { touch-action: pan-y; cursor: grab; }

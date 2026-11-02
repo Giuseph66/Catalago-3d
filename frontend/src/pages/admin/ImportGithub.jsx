@@ -315,7 +315,7 @@ export default function ImportGithub() {
                   </a>
                 </div>
 
-                <div className="relative mt-4 aspect-[4/3] overflow-hidden rounded-card bg-cobalt text-paper">
+                <div className="relative mt-4 aspect-[4/3] overflow-hidden rounded-card bg-cover text-on-cover">
                   {model && canLoad ? (
                     <Suspense fallback={null}>
                       <ModelViewer
@@ -333,18 +333,18 @@ export default function ImportGithub() {
                       <button
                         type="button"
                         onClick={() => setForceLoad(true)}
-                        className="h-11 rounded-full bg-paper px-6 font-display text-lg font-extrabold text-cobalt hover:bg-white"
+                        className="h-11 rounded-full bg-ink px-6 font-display text-lg font-extrabold text-paper hover:bg-primary-700"
                       >
                         Abrir mesmo assim
                       </button>
                     </div>
                   ) : null}
                   {model && (
-                    <p className="pointer-events-none absolute left-4 top-3 max-w-[70%] truncate text-sm text-paper/75">
+                    <p className="pointer-events-none absolute left-4 top-3 max-w-[70%] truncate text-sm text-on-cover/70">
                       {model.name} ({formatBytes(model.size)})
                     </p>
                   )}
-                  <div className="absolute bottom-3 left-3 flex gap-1.5 rounded-full bg-ink/35 p-1.5 backdrop-blur" role="radiogroup" aria-label="Cor da prévia">
+                  <div className="absolute bottom-3 left-3 flex gap-1.5 rounded-full bg-on-cover/10 p-1.5 backdrop-blur" role="radiogroup" aria-label="Cor da prévia">
                     {PREVIEW_COLORS.map((hex) => (
                       <button
                         key={hex}
@@ -353,7 +353,7 @@ export default function ImportGithub() {
                         aria-checked={previewColor === hex}
                         aria-label={`Prévia na cor ${hex}`}
                         onClick={() => setPreviewColor(hex)}
-                        className={cn('h-6 w-6 rounded-full ring-paper ring-offset-1 ring-offset-transparent', previewColor === hex && 'ring-2')}
+                        className={cn('h-6 w-6 rounded-full ring-on-cover ring-offset-1 ring-offset-transparent', previewColor === hex && 'ring-2')}
                         style={{ backgroundColor: hex }}
                       />
                     ))}
