@@ -342,7 +342,7 @@ export default function ProductionQueue() {
                     statusFilter === 'CANCELADO' ? 'Cancelados' : 'Todos'}
               </span>
             </Button>
-            <div className="absolute left-0 sm:right-0 sm:left-auto top-full mt-2 w-48 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 hidden group-hover/filter:block z-50 animate-in fade-in zoom-in duration-200">
+            <div className="absolute left-0 sm:right-0 sm:left-auto top-full mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 hidden group-hover/filter:block z-50 animate-in fade-in zoom-in duration-200">
               {[
                 { label: 'Ativos', value: 'ATIVOS' },
                 { label: 'Concluídos', value: 'CONCLUIDO' },
@@ -362,7 +362,7 @@ export default function ProductionQueue() {
               ))}
             </div>
           </div>
-          <Button onClick={openCreateModal} className="flex items-center gap-2 shadow-lg shadow-primary-500/20">
+          <Button onClick={openCreateModal} className="flex items-center gap-2 shadow-lg">
             <FaPlus /> Nova Tarefa
           </Button>
         </div>
@@ -388,7 +388,7 @@ export default function ProductionQueue() {
         </div>
       </div>
 
-      <div className="bg-white rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-50 overflow-hidden hidden md:block">
+      <div className="bg-white rounded-xl shadow-xl shadow-gray-200/50 border border-gray-50 overflow-hidden hidden md:block">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -530,14 +530,14 @@ export default function ProductionQueue() {
                           )}
                           <button
                             onClick={() => openUpdateModal(job)}
-                            className="p-3 text-primary-500 bg-primary-50 hover:bg-primary-500 hover:text-white rounded-2xl transition-all shadow-sm active:scale-95"
+                            className="p-3 text-primary-500 bg-primary-50 hover:bg-primary-500 hover:text-white rounded-xl transition-all shadow-sm active:scale-95"
                             title="Atualizar Produção"
                           >
                             <FaEdit size={16} />
                           </button>
                           <button
                             onClick={() => handleDelete(job.id)}
-                            className="p-3 text-danger bg-danger-soft hover:bg-danger hover:text-white rounded-2xl transition-all shadow-sm active:scale-95"
+                            className="p-3 text-danger bg-danger-soft hover:bg-danger hover:text-white rounded-xl transition-all shadow-sm active:scale-95"
                             title="Remover"
                           >
                             <FaTrash size={16} />
@@ -556,7 +556,7 @@ export default function ProductionQueue() {
       {/* Mobile Grid View */}
       <div className="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
         {filteredQueue.length === 0 ? (
-          <div className="p-12 text-center text-gray-400 font-medium bg-white rounded-[2.5rem] border border-dashed border-gray-200 shadow-inner sm:col-span-2">
+          <div className="p-12 text-center text-gray-400 font-medium bg-white rounded-xl border border-dashed border-gray-200 shadow-inner sm:col-span-2">
             A fila de produção está vazia.
           </div>
         ) : (
@@ -568,7 +568,7 @@ export default function ProductionQueue() {
 
             return (
               <div key={job.id} className={cn(
-                "bg-white rounded-[2.5rem] p-6 shadow-xl border border-gray-50 space-y-5 transition-all duration-300",
+                "bg-white rounded-xl p-6 shadow-xl border border-gray-50 space-y-5 transition-all duration-300",
                 isDone && "opacity-70 grayscale-[0.3]"
               )}>
                 <div className="flex justify-between items-start gap-3">
@@ -585,7 +585,7 @@ export default function ProductionQueue() {
                   </div>
                 </div>
 
-                <div className="bg-gray-50/50 rounded-3xl p-4 border border-gray-100/50 space-y-3">
+                <div className="bg-gray-50/50 rounded-xl p-4 border border-gray-100/50 space-y-3">
                   <div className="flex justify-between items-center text-xs font-bold uppercase tracking-tight text-gray-500">
                     <span className="flex items-center gap-2">
                       <FaLayerGroup className="text-primary-400" />
@@ -636,7 +636,7 @@ export default function ProductionQueue() {
                       <button
                         onClick={() => handleMove(index, -1)}
                         disabled={index === 0}
-                        className="h-11 rounded-2xl bg-gray-50 border border-gray-100 text-gray-500 flex items-center justify-center disabled:opacity-30 active:scale-95 transition-all text-xs font-bold gap-2 uppercase tracking-widest"
+                        className="h-11 rounded-xl bg-gray-50 border border-gray-100 text-gray-500 flex items-center justify-center disabled:opacity-30 active:scale-95 transition-all text-xs font-bold gap-2 uppercase tracking-widest"
                         title="Priorizar"
                       >
                         <FaArrowUp size={12} /> Priorizar
@@ -644,7 +644,7 @@ export default function ProductionQueue() {
                       <button
                         onClick={() => handleMove(index, 1)}
                         disabled={index === queue.length - 1}
-                        className="h-11 rounded-2xl bg-gray-50 border border-gray-100 text-gray-500 flex items-center justify-center disabled:opacity-30 active:scale-95 transition-all text-xs font-bold gap-2 uppercase tracking-widest"
+                        className="h-11 rounded-xl bg-gray-50 border border-gray-100 text-gray-500 flex items-center justify-center disabled:opacity-30 active:scale-95 transition-all text-xs font-bold gap-2 uppercase tracking-widest"
                         title="Postergar"
                       >
                         <FaArrowDown size={12} /> Postergar
@@ -654,13 +654,13 @@ export default function ProductionQueue() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => openUpdateModal(job)}
-                      className="flex-1 bg-primary-500 text-white font-black h-12 rounded-2xl shadow-lg shadow-primary-500/30 active:scale-95 transition-all text-xs uppercase tracking-wider"
+                      className="flex-1 bg-primary-500 text-white font-black h-12 rounded-xl shadow-lg active:scale-95 transition-all text-xs uppercase tracking-wider"
                     >
                       Atualizar Produção
                     </button>
                     <button
                       onClick={() => handleDelete(job.id)}
-                      className="w-12 h-12 flex items-center justify-center bg-danger-soft text-danger rounded-2xl active:scale-90 transition-all border border-danger/10"
+                      className="w-12 h-12 flex items-center justify-center bg-danger-soft text-danger rounded-xl active:scale-90 transition-all border border-danger/10"
                     >
                       <FaTrash size={16} />
                     </button>
@@ -743,7 +743,7 @@ export default function ProductionQueue() {
             {formData.materials.length === 0 ? (
               <div className="space-y-1">
                 <select
-                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-sm"
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-sm"
                   value={formData.filamentoId}
                   onChange={(event) => setFormData({ ...formData, filamentoId: event.target.value })}
                 >
@@ -759,7 +759,7 @@ export default function ProductionQueue() {
                 <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter px-2">Padrão: usa o filamento principal ou material do produto.</p>
               </div>
             ) : (
-              <div className="space-y-3 p-4 bg-gray-50 rounded-3xl border border-gray-100">
+              <div className="space-y-3 p-4 bg-gray-50 rounded-xl border border-gray-100">
                 {formData.materials.map((mat, index) => (
                   <div key={index} className="flex gap-2 items-end group animate-fade-in">
                     <div className="flex-1 space-y-1">

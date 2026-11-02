@@ -7,19 +7,21 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Primary (marca/ação)
+        // Primary (marca/ação): azul cobalto da capa
         primary: {
-          DEFAULT: '#6366F1',
-          100: '#EEF2FF',
-          500: '#6366F1',
-          600: '#6366F1',
-          700: '#4F46E5',
+          DEFAULT: '#2340C8',
+          50: '#F1F3FC',
+          100: '#E4E9FB',
+          200: '#C5CFF4',
+          500: '#2340C8',
+          600: '#2340C8',
+          700: '#1A2F96',
         },
-        // Accent (tech/detalhe)
+        // Accent: laranja do filamento
         accent: {
-          DEFAULT: '#06B6D4',
-          100: '#CFFAFE',
-          500: '#06B6D4',
+          DEFAULT: '#FF5A1F',
+          100: '#FFE6DB',
+          500: '#FF5A1F',
         },
         // Estados
         success: {
@@ -38,27 +40,34 @@ export default {
           DEFAULT: '#DC2626',
           soft: '#FEE2E2',
         },
+        // Editorial (Home)
+        paper: '#ECEEF1',
+        ink: '#16181D',
+        cobalt: { DEFAULT: '#2340C8', deep: '#1A2F96' },
+        filament: '#FF5A1F',
         // Neutros
-        bg: '#F6F8FC',
+        bg: '#ECEEF1',
         surface: '#FFFFFF',
-        border: '#E6EAF2',
-        text: '#0F172A',
-        'text-2': '#475569',
-        muted: '#64748B',
+        border: '#D9DCE2',
+        text: '#16181D',
+        'text-2': '#4A4F5A',
+        muted: '#6B717C',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['"Big Shoulders Display"', 'Impact', 'sans-serif'],
+        serif: ['Newsreader', 'Georgia', 'serif'],
       },
       borderRadius: {
-        card: '16px',
-        input: '16px',
-        button: '20px',
-        chip: '12px',
-        DEFAULT: '16px',
+        card: '12px',
+        input: '10px',
+        button: '9999px',
+        chip: '9999px',
+        DEFAULT: '10px',
       },
       boxShadow: {
-        card: '0 10px 30px rgba(2, 8, 23, 0.08)',
-        'card-hover': '0 14px 38px rgba(2, 8, 23, 0.12)',
+        card: '0 1px 2px rgba(22, 24, 29, 0.06)',
+        'card-hover': '0 6px 20px rgba(22, 24, 29, 0.08)',
       },
     },
   },

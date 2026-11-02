@@ -16,6 +16,8 @@ import AdminSettings from './pages/admin/Settings';
 import AdminProductionQueue from './pages/admin/ProductionQueue';
 import AdminFilaments from './pages/admin/Filaments';
 import AdminUsers from './pages/admin/Users';
+import AdminImportGithub from './pages/admin/ImportGithub';
+import { Toaster } from 'react-hot-toast';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -59,6 +61,7 @@ function App() {
             <Route path="produtos" element={<AdminProducts />} />
             <Route path="produtos/novo" element={<AdminProductEdit />} />
             <Route path="produtos/:id" element={<AdminProductEdit />} />
+            <Route path="importar" element={<AdminImportGithub />} />
             <Route path="categorias" element={<AdminCategories />} />
             <Route path="fila-producao" element={<AdminProductionQueue />} />
             <Route path="filamentos" element={<AdminFilaments />} />
@@ -68,6 +71,7 @@ function App() {
           </Route>
         </Routes>
         <WhatsAppButton />
+        <Toaster position="bottom-center" toastOptions={{ style: { background: '#16181D', color: '#ECEEF1' } }} />
       </Router>
     </AuthProvider>
   );

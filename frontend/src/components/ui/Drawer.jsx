@@ -41,14 +41,14 @@ export function Drawer({
       <div
         className={cn(
           isModal
-            ? 'fixed left-1/2 top-20 -translate-x-1/2 z-50 w-[92vw] max-w-sm bg-white shadow-xl rounded-2xl transition-all duration-300'
+            ? 'fixed left-1/2 top-20 -translate-x-1/2 z-50 w-[92vw] max-w-sm bg-white shadow-xl rounded-xl transition-all duration-300'
             : cn(
-              'fixed inset-y-0 z-50 w-full max-w-xs bg-white shadow-2xl transform transition-transform duration-300 ease-in-out',
+              'fixed inset-y-0 z-50 w-full max-w-xs bg-white transform transition-transform duration-300 ease-in-out',
               isLeft ? 'left-0' : 'right-0'
             ),
           isModal
             ? (isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none')
-            : (isOpen ? 'translate-x-0' : (isLeft ? '-translate-x-full' : 'translate-x-full')),
+            : (isOpen ? 'translate-x-0 shadow-2xl' : (isLeft ? '-translate-x-full invisible' : 'translate-x-full invisible')),
           className
         )}
         role="dialog"

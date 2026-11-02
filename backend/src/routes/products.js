@@ -7,13 +7,13 @@ import {
   updateProduct,
   deleteProduct
 } from '../controllers/productController.js';
-import { authenticateToken } from '../middleware/auth.js';
+import { authenticateToken, optionalAuth } from '../middleware/auth.js';
 import { validateProduct, validateProductUpdate, handleValidationErrors } from '../utils/validators.js';
 
 const router = express.Router();
 
 // Rotas públicas
-router.get('/', listProducts);
+router.get('/', optionalAuth, listProducts);
 
 // Rotas protegidas (admin) - devem vir antes das rotas com parâmetros dinâmicos
 router.get('/admin/:id', authenticateToken, getProductById);
@@ -22,7 +22,7 @@ router.put('/:id', authenticateToken, validateProductUpdate, handleValidationErr
 router.delete('/:id', authenticateToken, deleteProduct);
 
 // Rota pública com slug (deve vir por último para não capturar outras rotas)
-router.get('/:slug', getProductBySlug);
+router.get('/:slug', optionalAuth, getProductBySlug);
 
 export default router;
 

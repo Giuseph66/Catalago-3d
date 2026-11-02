@@ -23,7 +23,7 @@ export default function AdminProducts() {
 
   const loadProducts = async () => {
     try {
-      const res = await api.get('/products?limit=100');
+      const res = await api.get('/products?limit=500&rascunhos=1');
       setProducts(res.data.products || []);
     } catch (error) {
       console.error('Erro ao carregar produtos:', error);
@@ -135,7 +135,7 @@ export default function AdminProducts() {
       ) : (
         <div className="space-y-4">
           <div className="hidden md:block">
-            <Card className="rounded-3xl overflow-hidden border-none shadow-xl shadow-gray-200/50">
+            <Card className="rounded-xl overflow-hidden border-none shadow-xl shadow-gray-200/50">
               <CardHeader className="bg-white border-b border-gray-50 px-8 py-6">
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl font-extrabold text-gray-800">
@@ -160,7 +160,7 @@ export default function AdminProducts() {
                       return (
                         <TableRow key={product.id} className="hover:bg-primary-50/30 transition-colors border-b border-gray-50 last:border-0 group">
                           <TableCell className="py-4 px-8">
-                            <div className="relative w-16 h-16 rounded-2xl overflow-hidden shadow-md group-hover:scale-105 transition-transform duration-300">
+                            <div className="relative w-16 h-16 rounded-xl overflow-hidden shadow-md group-hover:scale-105 transition-transform duration-300">
                               {capa ? (
                                 <img
                                   src={normalizeMediaUrl(capa.url)}
@@ -217,6 +217,11 @@ export default function AdminProducts() {
                                 {product.status === PRODUCT_STATUS.PRONTA_ENTREGA ? 'Pronta Entrega' : 'Sob Encomenda'}
                               </Badge>
                             </button>
+                            {product.publicado === false && (
+                              <span className="ml-2 inline-block rounded-full bg-ink/10 px-2.5 py-1 text-[11px] font-semibold text-ink/70" title="Não aparece no site">
+                                Rascunho
+                              </span>
+                            )}
                           </TableCell>
                           <TableCell className="py-4 px-8 text-right">
                             <div className="flex items-center justify-end gap-2">
@@ -250,9 +255,9 @@ export default function AdminProducts() {
             {filteredProducts.map((product) => {
               const capa = product.media?.find(m => m.isCapa) || product.media?.[0];
               return (
-                <div key={product.id} className="bg-white rounded-[2.5rem] p-5 shadow-xl shadow-gray-200/30 border border-gray-50 space-y-4">
+                <div key={product.id} className="bg-white rounded-xl p-5 shadow-xl shadow-gray-200/30 border border-gray-50 space-y-4">
                   <div className="flex gap-4">
-                    <div className="w-24 h-24 rounded-3xl overflow-hidden shadow-lg shrink-0 border-2 border-white">
+                    <div className="w-24 h-24 rounded-xl overflow-hidden shadow-lg shrink-0 border-2 border-white">
                       {capa ? (
                         <img
                           src={normalizeMediaUrl(capa.url)}
@@ -280,6 +285,9 @@ export default function AdminProducts() {
                       >
                         {product.status === PRODUCT_STATUS.PRONTA_ENTREGA ? 'Pronta Entrega' : 'Sob Encomenda'}
                       </Badge>
+                      {product.publicado === false && (
+                        <span className="ml-2 inline-block rounded-full bg-ink/10 px-2 py-0.5 text-[10px] font-semibold text-ink/70">Rascunho</span>
+                      )}
                       <div className="flex items-baseline gap-1 pt-1">
                         <span className="text-xl font-black text-primary-600">{formatPrice(product.preco || 0)}</span>
                         <span className="text-[10px] font-bold text-gray-400">{product.peso}g</span>
@@ -292,14 +300,14 @@ export default function AdminProducts() {
                       as={Link}
                       to={`/admin/produtos/${product.id}`}
                       variant="secondary"
-                      className="flex-1 rounded-2xl h-11 text-sm font-bold"
+                      className="flex-1 rounded-xl h-11 text-sm font-bold"
                       leftIcon={<FaEdit />}
                     >
                       Editar
                     </Button>
                     <button
                       onClick={() => handleDelete(product.id, product.nome)}
-                      className="p-3 bg-danger-soft text-danger rounded-2xl hover:brightness-95 transition-all"
+                      className="p-3 bg-danger-soft text-danger rounded-xl hover:brightness-95 transition-all"
                     >
                       <FaTrash size={18} />
                     </button>

@@ -15,6 +15,7 @@ import mediaRoutes from './routes/media.js';
 import configRoutes from './routes/config.js';
 import filamentRoutes from './routes/filaments.js';
 import queueRoutes from './routes/queue.js';
+import libraryRoutes from './routes/library.js';
 
 dotenv.config();
 
@@ -80,6 +81,7 @@ app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/config', configRoutes);
 app.use('/api/filaments', filamentRoutes);
 app.use('/api/queue', queueRoutes);
+app.use('/api/library', libraryRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

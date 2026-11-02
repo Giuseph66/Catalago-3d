@@ -1,54 +1,110 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { motion, MotionConfig } from 'framer-motion';
 import api from '../../services/api';
-import ProductCard from '../../components/public/ProductCard';
-import TestimonialCard from '../../components/public/TestimonialCard';
-import CategoryGrid from '../../components/public/CategoryGrid';
-import { ProductGridSkeleton } from '../../components/ui/Skeleton';
-import { Button } from '../../components/ui/Button';
-import { Card, CardContent } from '../../components/ui/Card';
-import { Select } from '../../components/ui/Select';
-import { FaMapMarkerAlt, FaShoppingCart, FaWhatsapp, FaPalette, FaAward, FaTruck, FaCheckCircle, FaArrowRight } from 'react-icons/fa';
-import { FiSearch } from 'react-icons/fi';
+import Turntable from '../../components/public/home/Turntable';
+import EditorialProductCard from '../../components/public/EditorialProductCard';
+import SectionHeader from '../../components/public/SectionHeader';
 import { generateWhatsAppLink } from '../../utils/whatsapp';
-import { PRODUCT_STATUS } from '../../lib/constants';
+
+const SWATCHES = [
+  { name: 'Laranja', hex: '#FF5A1F' },
+  { name: 'Azul cobalto', hex: '#2340C8' },
+  { name: 'Branco', hex: '#F4F4F2' },
+  { name: 'Preto', hex: '#1C1C1E' },
+  { name: 'Vermelho', hex: '#D7263D' },
+  { name: 'Amarelo', hex: '#F6C445' },
+  { name: 'Verde', hex: '#2F9E62' },
+  { name: 'Cinza', hex: '#8A9099' },
+  { name: 'Rosa', hex: '#F29BB8' },
+  { name: 'Dourado silk', hex: '#C9A24A' },
+];
+
+const STEPS = [
+  {
+    title: 'Modelagem',
+    text: 'Desenhamos a peça ou ajustamos um modelo pronto ao tamanho, à cor e ao nome que você pediu.',
+  },
+  {
+    title: 'Fatiamento',
+    text: 'O programa divide o modelo em centenas de camadas e calcula o caminho que o bico vai fazer em cada uma.',
+  },
+  {
+    title: 'Impressão',
+    text: 'O plástico derrete a cerca de 210 °C e é depositado camada por camada. Uma peça leva de minutos a muitas horas.',
+  },
+  {
+    title: 'Acabamento',
+    text: 'Tiramos os suportes, revisamos a peça e embalamos para você retirar ou receber.',
+  },
+];
+
+const COVER_LINES = [
+  { href: '#como-e-feita', title: 'Como uma peça é feita', text: 'Do arquivo ao acabamento, em quatro etapas.' },
+  { href: '#cores', title: 'Cores', text: 'Escolha o filamento da sua peça.' },
+  { href: '#onde-comprar', title: 'Onde comprar', text: 'Retirada em Sinop ou envio pelo Mercado Livre.' },
+];
+
+const ease = [0.22, 1, 0.36, 1];
 
 export default function Home() {
   const navigate = useNavigate();
-  const [destaques, setDestaques] = useState([]);
+  const location = useLocation();
+  const [produtos, setProdutos] = useState([]);
   const [categories, setCategories] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
   const [config, setConfig] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [heroSearch, setHeroSearch] = useState('');
-  const [heroCategory, setHeroCategory] = useState('');
 
   useEffect(() => {
     const loadData = async () => {
       try {
         const [productsRes, categoriesRes, testimonialsRes, configRes] = await Promise.all([
-          api.get('/products?destaque=true&limit=8'),
+          api.get('/products?destaque=true&limit=5'),
           api.get('/categories'),
-          api.get('/testimonials?limit=6'),
+          api.get('/testimonials?limit=4'),
           api.get('/config')
         ]);
 
-        setDestaques(productsRes.data.products || []);
+        let lista = productsRes.data.products || [];
+        // Sem destaques marcados, a vitrine mostra os mais recentes
+        if (lista.length === 0) {
+          const recentes = await api.get('/products?limit=5&orderBy=createdAt&orderDir=DESC');
+          lista = recentes.data.products || [];
+        }
+
+        setProdutos(lista);
         setCategories(categoriesRes.data || []);
         setTestimonials(testimonialsRes.data || []);
         setConfig(configRes.data);
       } catch (error) {
         console.error('Erro ao carregar dados:', error);
-      } finally {
-        setLoading(false);
       }
     };
 
     loadData();
   }, []);
 
+  // Links do header/rodapé chegam como /#secao: rola depois que a página monta
+  useEffect(() => {
+    if (!location.hash) return;
+    const alvo = document.getElementById(location.hash.slice(1));
+    alvo?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [location.hash, produtos.length]);
+
+  const openWhatsApp = (message) => {
+    const numero = String(config?.whatsappNumero || '').replace(/\D/g, '');
+    if (!numero) {
+      navigate('/catalogo');
+      return;
+    }
+    window.open(`https://wa.me/${numero}?text=${encodeURIComponent(message)}`, '_blank');
+  };
+
   const handleWhatsApp = () => {
-    if (!config?.whatsappNumero) return;
+    if (!config?.whatsappNumero) {
+      navigate('/catalogo');
+      return;
+    }
     const url = generateWhatsAppLink(
       'seus produtos',
       'Sinop-MT',
@@ -61,437 +117,298 @@ export default function Home() {
     }
   };
 
-  const handleCatalogSearch = (event) => {
-    event.preventDefault();
-    const params = new URLSearchParams();
-    const trimmedSearch = heroSearch.trim();
-    if (trimmedSearch) params.append('search', trimmedSearch);
-    if (heroCategory) params.append('categoria', heroCategory);
-    const query = params.toString();
-    navigate(query ? `/catalogo?${query}` : '/catalogo');
-  };
+  const edicao = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(new Date());
+  const [principal, ...demais] = produtos;
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div
-          className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(135deg, var(--primary-soft) 0%, #FFFFFF 55%, var(--accent-soft) 100%)'
-          }}
-        ></div>
-        <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/70 blur-3xl"></div>
-        <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-white/70 blur-3xl"></div>
-
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10 py-20 md:py-28">
-          <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
-            <div>
-              <div
-                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 text-xs font-semibold uppercase tracking-wider"
-                style={{ backgroundColor: 'var(--surface)', color: 'var(--primary)', border: '1px solid var(--border)' }}
-              >
-                Catálogo de impressão 3D
-              </div>
-              <h1
-                className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight tracking-tight text-balance"
-                style={{ color: 'var(--text)' }}
-              >
-                Impressão 3D com acabamento profissional
-              </h1>
-              <p
-                className="text-lg md:text-xl mb-8 max-w-xl leading-relaxed text-balance"
-                style={{ color: 'var(--text-2)' }}
-              >
-                Produtos personalizados e prontos para entrega em Sinop – Mato Grosso.
-                Soluções sob medida para presentes, decoração e uso profissional.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button as={Link} to="/catalogo" size="lg" className="min-w-[220px]">
-                  Explorar catálogo
-                  <FaArrowRight className="ml-2" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  leftIcon={<FaWhatsapp />}
-                  onClick={handleWhatsApp}
-                  className="min-w-[220px]"
-                >
-                  Falar no WhatsApp
-                </Button>
-              </div>
-
-              <div className="mt-10 flex flex-wrap gap-3 text-sm">
-                <div
-                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full"
-                  style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-2)' }}
-                >
-                  <FaCheckCircle size={14} style={{ color: 'var(--success)' }} />
-                  Entrega local rápida
-                </div>
-                <div
-                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full"
-                  style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-2)' }}
-                >
-                  <FaCheckCircle size={14} style={{ color: 'var(--success)' }} />
-                  Qualidade garantida
-                </div>
-                <div
-                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full"
-                  style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-2)' }}
-                >
-                  <FaCheckCircle size={14} style={{ color: 'var(--success)' }} />
-                  Personalização completa
-                </div>
-              </div>
+    <MotionConfig reducedMotion="user">
+      <div className="bg-paper text-ink">
+        {/* Capa */}
+        <section className="relative overflow-hidden bg-cobalt text-paper">
+          <div className="mx-auto max-w-[1440px] px-4 pb-12 pt-5 sm:px-8 lg:pb-16">
+            <div className="flex items-baseline justify-between font-serif text-sm text-paper/80 md:text-base">
+              <span>Sinop, Mato Grosso</span>
+              <span className="first-letter:uppercase">{edicao}</span>
             </div>
-            <div>
-              <Card className="border border-white/60">
-                <CardContent className="p-6 md:p-8">
-                  <div className="flex items-start justify-between gap-4 mb-6">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
-                        Busca rápida
-                      </p>
-                      <h2 className="text-2xl font-bold" style={{ color: 'var(--text)' }}>
-                        Encontre no catálogo
-                      </h2>
-                    </div>
-                    <Button as={Link} to="/catalogo" variant="ghost" size="sm">
-                      Ver tudo
-                    </Button>
-                  </div>
 
-                  <form onSubmit={handleCatalogSearch} className="grid gap-3 sm:grid-cols-[1fr_200px_auto] sm:items-end">
-                    <div className="relative">
-                      <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--muted)' }} size={18} />
-                      <input
-                        type="text"
-                        value={heroSearch}
-                        onChange={(e) => setHeroSearch(e.target.value)}
-                        placeholder="Buscar produtos, temas ou ideias..."
-                        className="input-base pl-10"
-                        aria-label="Buscar no catálogo"
-                      />
-                    </div>
-                    <Select
-                      value={heroCategory}
-                      onChange={(e) => setHeroCategory(e.target.value)}
-                      aria-label="Categoria"
-                    >
-                      <option value="">Todas as categorias</option>
-                      {categories.map((category) => (
-                        <option key={category.id} value={category.slug}>
-                          {category.nome}
-                        </option>
-                      ))}
-                    </Select>
-                    <Button type="submit" size="md">
-                      Buscar no catálogo
-                    </Button>
-                  </form>
+            <motion.h1
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, ease }}
+              className="relative z-0 mt-4 whitespace-nowrap text-center font-display font-black uppercase leading-[0.8] tracking-[-0.01em] text-paper text-[18.5vw] min-[1440px]:text-[266px]"
+            >
+              Catálogo 3D
+            </motion.h1>
 
-                  <div className="mt-6">
-                    <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
-                      Filtros rápidos
-                    </p>
-                    <div className="mt-3 flex flex-wrap gap-2 text-sm">
-                      <Link
-                        to={`/catalogo?status=${PRODUCT_STATUS.PRONTA_ENTREGA}`}
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full font-semibold"
-                        style={{ backgroundColor: 'var(--success-soft)', color: 'var(--success)' }}
-                      >
-                        Pronta entrega
-                      </Link>
-                      <Link
-                        to={`/catalogo?status=${PRODUCT_STATUS.SOB_ENCOMENDA}`}
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full font-semibold"
-                        style={{ backgroundColor: 'var(--info-soft)', color: 'var(--info)' }}
-                      >
-                        Sob encomenda
-                      </Link>
-                      <Link
-                        to="/catalogo?orderBy=views&orderDir=DESC"
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full font-semibold"
-                        style={{ backgroundColor: 'var(--primary-soft)', color: 'var(--primary)' }}
-                      >
-                        Mais vistos
-                      </Link>
-                      <Link
-                        to="/catalogo?orderBy=createdAt&orderDir=DESC"
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full font-semibold"
-                        style={{ backgroundColor: 'var(--accent-soft)', color: 'var(--accent)' }}
-                      >
-                        Novidades
-                      </Link>
-                    </div>
-                  </div>
-
-                  {categories.length > 0 && (
-                    <div className="mt-6">
-                      <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
-                        Categorias populares
-                      </p>
-                      <div className="mt-3 flex flex-wrap gap-2 text-sm">
-                        {categories.slice(0, 5).map((category) => (
-                          <Link
-                            key={category.id}
-                            to={`/catalogo?categoria=${category.slug}`}
-                            className="inline-flex items-center gap-2 px-3 py-1 rounded-full font-medium"
-                            style={{ backgroundColor: 'var(--primary-soft)', color: 'var(--primary)' }}
-                          >
-                            {category.nome}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Destaques - Mais Profissional */}
-      {destaques.length > 0 && (
-        <section className="py-24 md:py-32">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-12">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--muted)' }}>
-                  Catálogo
-                </p>
-                <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight" style={{ color: 'var(--text)' }}>
-                  Produtos em Destaque
-                </h2>
-                <p className="text-lg max-w-2xl" style={{ color: 'var(--text-2)' }}>
-                  Seleção especial de produtos de alta qualidade
-                </p>
-              </div>
-              <Button
-                as={Link}
-                to="/catalogo"
-                variant="outline"
-                size="lg"
-                className="min-w-[220px]"
+            <div className="relative grid gap-8 lg:grid-cols-12 lg:gap-6">
+              <motion.div
+                initial={{ opacity: 0, y: 60 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1.1, delay: 0.25, ease }}
+                className="relative z-10 order-1 -mt-[24vw] sm:-mt-[16vw] lg:order-2 lg:col-span-4 lg:col-start-5 lg:-mt-[12vw] min-[1440px]:-mt-44"
               >
-                Ver Catálogo Completo
-                <FaArrowRight className="ml-2" />
-              </Button>
-            </div>
-            {loading ? (
-              <ProductGridSkeleton count={8} />
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
-                {destaques.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-      )}
+                <Turntable
+                  alt="Vaso torcido impresso em PLA laranja"
+                  className="mx-auto aspect-[3/4] w-[78%] sm:w-[60%] lg:w-full"
+                />
+                <p className="-mt-6 text-center font-serif text-sm italic text-paper/75">
+                  Na capa: vaso torcido em PLA laranja. Arraste para girar.
+                </p>
+              </motion.div>
 
-      {/* Seção de Valor - Mais Profissional */}
-      <section className="py-24 md:py-32">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight" style={{ color: 'var(--text)' }}>
-              Nossos Diferenciais
-            </h2>
-            <p className="text-lg max-w-2xl mx-auto" style={{ color: 'var(--text-2)' }}>
-              Comprometidos com excelência em cada projeto
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
-            <Card className="text-center border border-gray-100 hover:border-primary-100 transition-all duration-300">
-              <CardContent className="pt-12 pb-12 px-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6" style={{ backgroundColor: 'var(--primary-soft)' }}>
-                  <FaPalette size={24} style={{ color: 'var(--primary)' }} />
-                </div>
-                <h3 className="text-xl font-bold mb-3" style={{ color: 'var(--text)' }}>Personalização</h3>
-                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-2)' }}>
-                  Cada produto é desenvolvido exclusivamente para atender suas necessidades específicas
+              <div className="order-2 lg:order-1 lg:col-span-4 lg:pt-10">
+                <p className="font-display text-5xl font-extrabold leading-[0.92] md:text-6xl">
+                  Feito camada por camada, aqui em Sinop.
                 </p>
-              </CardContent>
-            </Card>
-            <Card className="text-center border border-gray-100 hover:border-primary-100 transition-all duration-300">
-              <CardContent className="pt-12 pb-12 px-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6" style={{ backgroundColor: 'var(--accent-soft)' }}>
-                  <FaAward size={24} style={{ color: 'var(--accent)' }} />
-                </div>
-                <h3 className="text-xl font-bold mb-3" style={{ color: 'var(--text)' }}>Qualidade</h3>
-                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-2)' }}>
-                  Utilizamos materiais de alta qualidade e processos rigorosos de controle
+                <p className="mt-5 max-w-md font-serif text-lg leading-relaxed text-paper/85 md:text-xl">
+                  Presentes, decoração e peças sob medida em impressão 3D. Escolha no catálogo ou mande a sua ideia.
                 </p>
-              </CardContent>
-            </Card>
-            <Card className="text-center border border-gray-100 hover:border-primary-100 transition-all duration-300">
-              <CardContent className="pt-12 pb-12 px-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6" style={{ backgroundColor: 'var(--success-soft)' }}>
-                  <FaTruck size={24} style={{ color: 'var(--success)' }} />
-                </div>
-                <h3 className="text-xl font-bold mb-3" style={{ color: 'var(--text)' }}>Entrega</h3>
-                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-2)' }}>
-                  Retire em Sinop sem custo adicional ou receba em todo Brasil via Mercado Livre
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Localização - Mais Profissional */}
-      <section className="py-20">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-          <Card className="border border-gray-200">
-            <CardContent className="p-10 md:p-12">
-              <div className="flex flex-col md:flex-row items-start md:items-center gap-8 md:gap-10">
-                <div className="flex-shrink-0">
-                  <div className="w-20 h-20 rounded-2xl flex items-center justify-center" style={{ backgroundColor: 'var(--primary-soft)' }}>
-                    <FaMapMarkerAlt style={{ color: 'var(--primary)' }} size={32} />
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight" style={{ color: 'var(--text)' }}>
-                    Localização
-                  </h2>
-                  <p className="text-lg mb-2 font-medium" style={{ color: 'var(--text)' }}>
-                    Sinop – Mato Grosso
-                  </p>
-                  <p className="mb-6 leading-relaxed" style={{ color: 'var(--text-2)' }}>
-                    {config?.politicaLocal || 'Entregas locais sem frete / combine pelo WhatsApp'}
-                  </p>
-                  <p className="mb-8 leading-relaxed" style={{ color: 'var(--text-2)' }}>
-                    Compre localmente e retire sem pagar frete, ou combine a entrega pelo WhatsApp. 
-                    Também enviamos via Mercado Livre para todo o Brasil com frete calculado automaticamente.
-                  </p>
-                  <Button
-                    variant="primary"
-                    size="md"
-                    leftIcon={<FaWhatsapp />}
-                    onClick={handleWhatsApp}
+                <div className="mt-8 flex flex-col gap-3 whitespace-nowrap sm:flex-row sm:flex-wrap">
+                  <Link
+                    to="/catalogo"
+                    className="inline-flex h-14 items-center justify-center rounded-full bg-paper px-8 font-display text-xl font-extrabold text-cobalt transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-paper focus-visible:ring-offset-2 focus-visible:ring-offset-cobalt"
                   >
-                    Entrar em Contato
-                  </Button>
+                    Ver o catálogo
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleWhatsApp}
+                    className="inline-flex h-14 items-center justify-center rounded-full border-2 border-paper/70 px-8 font-display text-xl font-extrabold text-paper transition-colors hover:border-paper hover:bg-paper/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-paper"
+                  >
+                    Pedir pelo WhatsApp
+                  </button>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
 
-      {/* Categorias - Mais Profissional */}
-      {categories.length > 0 && (
-        <section className="py-24 md:py-32" style={{ backgroundColor: 'var(--bg)' }}>
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-            <div className="text-center mb-20">
-              <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight" style={{ color: 'var(--text)' }}>
-                Categorias
-              </h2>
-              <p className="text-lg max-w-2xl mx-auto" style={{ color: 'var(--text-2)' }}>
-                Explore nossos produtos organizados por categoria
-              </p>
+              <nav aria-label="Nesta página" className="order-3 lg:col-span-3 lg:col-start-10 lg:pt-10">
+                <ul className="space-y-6 lg:text-right">
+                  {COVER_LINES.map((line) => (
+                    <li key={line.href}>
+                      <a href={line.href} className="group block">
+                        <span className="block font-display text-3xl font-extrabold leading-none group-hover:underline group-hover:decoration-2 group-hover:underline-offset-4">
+                          {line.title}
+                        </span>
+                        <span className="mt-1 block font-serif text-base text-paper/75">{line.text}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
             </div>
-            <CategoryGrid categories={categories} />
           </div>
         </section>
-      )}
 
-      {/* Depoimentos - Mais Profissional */}
-      {testimonials.length > 0 && (
-        <section className="py-24 md:py-32">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-            <div className="text-center mb-20">
-              <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight" style={{ color: 'var(--text)' }}>
-                Depoimentos
-              </h2>
-              <p className="text-lg max-w-2xl mx-auto" style={{ color: 'var(--text-2)' }}>
-                O que nossos clientes têm a dizer sobre nossos produtos
-              </p>
+        {/* Em destaque */}
+        {produtos.length > 0 && (
+          <section className="mx-auto max-w-[1440px] px-4 py-20 sm:px-8 md:py-28">
+            <SectionHeader id="destaques" title="Em destaque">
+              <p>Peças do catálogo para levar prontas ou pedir em outra cor e tamanho.</p>
+              {categories.length > 0 && (
+                <p className="mt-3 text-base">
+                  <span className="italic text-ink/55">Seções: </span>
+                  {categories.map((category, index) => (
+                    <span key={category.id}>
+                      <Link
+                        to={`/catalogo?categoria=${category.slug}`}
+                        className="text-ink underline decoration-ink/25 underline-offset-4 hover:decoration-cobalt hover:text-cobalt"
+                      >
+                        {category.nome}
+                      </Link>
+                      {index < categories.length - 1 && ', '}
+                    </span>
+                  ))}
+                </p>
+              )}
+            </SectionHeader>
+
+            <div className="mt-12 grid gap-x-8 gap-y-12 md:grid-cols-12">
+              <div className="md:col-span-6 lg:col-span-5">
+                <EditorialProductCard product={principal} large />
+              </div>
+              {demais.length > 0 && (
+                <div className="grid gap-x-6 gap-y-10 sm:grid-cols-2 md:col-span-6 lg:col-span-6 lg:col-start-7">
+                  {demais.map((product) => (
+                    <EditorialProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              )}
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+
+            <Link
+              to="/catalogo"
+              className="mt-14 inline-block font-display text-2xl font-extrabold text-cobalt underline decoration-2 underline-offset-[6px] hover:text-ink"
+            >
+              Ver o catálogo completo
+            </Link>
+          </section>
+        )}
+
+        {/* Matéria: como uma peça é feita */}
+        <section className="bg-white">
+          <div className="mx-auto grid max-w-[1440px] gap-10 px-4 py-20 sm:px-8 md:py-28 lg:grid-cols-12 lg:gap-12">
+            <figure className="lg:col-span-7">
+              <img
+                src="/editorial/macro-camadas.webp"
+                alt="Detalhe das linhas de camada de um vaso impresso em PLA laranja"
+                loading="lazy"
+                className="aspect-[7/5] w-full object-cover"
+              />
+              <figcaption className="mt-3 font-serif text-sm italic text-ink/60">
+                Linhas de camada vistas de perto. Cada faixa é uma passada do bico.
+              </figcaption>
+            </figure>
+
+            <article id="como-e-feita" className="scroll-mt-24 lg:col-span-5">
+              <h2 className="font-display text-5xl font-extrabold leading-[0.9] md:text-7xl">Como uma peça é feita</h2>
+              <p className="drop-cap mt-8 font-serif text-xl leading-[1.65] text-ink/85">
+                Toda peça começa como um arquivo 3D e termina na sua mão. No meio do caminho, a impressora
+                deposita plástico derretido em camadas de dois décimos de milímetro, uma sobre a outra, até a
+                forma aparecer.
+              </p>
+              <ol className="mt-10 border-t border-ink/15">
+                {STEPS.map((step, index) => (
+                  <li key={step.title} className="grid grid-cols-[3rem_1fr] gap-2 border-b border-ink/15 py-5">
+                    <span className="font-display text-3xl font-black leading-none text-cobalt">{index + 1}</span>
+                    <div>
+                      <h3 className="font-display text-2xl font-extrabold leading-none">{step.title}</h3>
+                      <p className="mt-2 font-serif text-base leading-relaxed text-ink/75">{step.text}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </article>
+          </div>
+        </section>
+
+        {/* Cores */}
+        <section className="mx-auto max-w-[1440px] px-4 py-20 sm:px-8 md:py-28">
+          <SectionHeader id="cores" title="Cores">
+            <p>
+              Algumas cores de filamento que usamos. A disponibilidade muda, então confirme pelo WhatsApp antes
+              de encomendar.
+            </p>
+          </SectionHeader>
+
+          <ul className="mt-12 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-5">
+            {SWATCHES.map((swatch) => (
+              <li key={swatch.hex}>
+                <button
+                  type="button"
+                  onClick={() => openWhatsApp(`Olá! Quero encomendar uma peça na cor ${swatch.name}. Sou de Sinop-MT.`)}
+                  className="group block w-full text-left focus-visible:outline-none"
+                >
+                  <span
+                    className="block aspect-[4/5] w-full shadow-[inset_0_0_0_1px_rgba(22,24,29,0.08)] ring-cobalt ring-offset-4 ring-offset-paper transition-transform duration-300 group-hover:-translate-y-1 group-focus-visible:ring-2"
+                    style={{ backgroundColor: swatch.hex }}
+                  />
+                  <span className="mt-3 block font-display text-2xl font-extrabold leading-none">{swatch.name}</span>
+                  <span className="mt-1 block font-serif text-sm italic text-ink/55 group-hover:text-cobalt">
+                    Pedir nessa cor
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* Onde comprar */}
+        <section className="mx-auto max-w-[1440px] px-4 pb-20 sm:px-8 md:pb-28">
+          <SectionHeader id="onde-comprar" title="Onde comprar" />
+          <div className="mt-10 grid gap-10 md:grid-cols-3 md:gap-0 md:divide-x md:divide-ink/15">
+            <div className="md:pr-8">
+              <h3 className="font-display text-3xl font-extrabold">Retirada em Sinop</h3>
+              <p className="mt-3 font-serif text-lg leading-relaxed text-ink/75">
+                {config?.politicaLocal || 'Entregas locais sem frete. Combine pelo WhatsApp.'}
+              </p>
+              <button
+                type="button"
+                onClick={() => openWhatsApp('Olá! Quero combinar uma retirada em Sinop-MT.')}
+                className="mt-4 font-serif text-lg text-cobalt underline underline-offset-4 hover:text-ink"
+              >
+                Combinar retirada
+              </button>
+            </div>
+            <div className="md:px-8">
+              <h3 className="font-display text-3xl font-extrabold">Mercado Livre</h3>
+              <p className="mt-3 font-serif text-lg leading-relaxed text-ink/75">
+                Envio para todo o Brasil, com frete calculado na hora da compra.
+              </p>
+              {config?.linkLojaMercadoLivre && (
+                <a
+                  href={config.linkLojaMercadoLivre}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 inline-block font-serif text-lg text-cobalt underline underline-offset-4 hover:text-ink"
+                >
+                  Abrir a loja
+                </a>
+              )}
+            </div>
+            <div className="md:pl-8">
+              <h3 className="font-display text-3xl font-extrabold">WhatsApp</h3>
+              <p className="mt-3 font-serif text-lg leading-relaxed text-ink/75">
+                Orçamento, personalização e prazo direto com quem imprime.
+              </p>
+              <button
+                type="button"
+                onClick={handleWhatsApp}
+                className="mt-4 font-serif text-lg text-cobalt underline underline-offset-4 hover:text-ink"
+              >
+                Chamar no WhatsApp
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* Cartas dos leitores */}
+        {testimonials.length > 0 && (
+          <section className="mx-auto max-w-[1440px] px-4 pb-20 sm:px-8 md:pb-28">
+            <SectionHeader id="cartas" title="Cartas dos leitores" />
+            <div className="mt-10 grid gap-12 md:grid-cols-2">
               {testimonials.map((testimonial) => (
-                <TestimonialCard key={testimonial.id} testimonial={testimonial} />
+                <blockquote key={testimonial.id} className="max-w-xl">
+                  <p className="font-serif text-2xl italic leading-snug text-ink md:text-[1.7rem]">
+                    “{testimonial.texto}”
+                  </p>
+                  <footer className="mt-4 font-display text-xl font-extrabold">
+                    {testimonial.nome}
+                    {testimonial.cidade && (
+                      <span className="ml-2 font-serif text-base font-normal italic text-ink/55">{testimonial.cidade}</span>
+                    )}
+                  </footer>
+                </blockquote>
               ))}
             </div>
+          </section>
+        )}
+
+        {/* Contracapa */}
+        <section className="overflow-hidden bg-[#C9CED6]">
+          <div className="mx-auto grid max-w-[1440px] items-center gap-6 px-4 pt-16 sm:px-8 lg:grid-cols-12 lg:pt-0">
+            <div className="lg:col-span-5 lg:py-24">
+              <h2 className="font-display text-6xl font-black leading-[0.86] md:text-8xl">
+                Mande a ideia. A gente devolve a peça.
+              </h2>
+              <p className="mt-6 max-w-md font-serif text-xl leading-relaxed text-ink/80">
+                Uma foto, um desenho ou só uma descrição já bastam para o orçamento.
+              </p>
+              <button
+                type="button"
+                onClick={() => openWhatsApp('Olá! Tenho uma ideia de peça para imprimir. Sou de Sinop-MT.')}
+                className="mt-9 inline-flex h-14 items-center justify-center rounded-full bg-ink px-8 font-display text-xl font-extrabold text-paper transition-colors hover:bg-cobalt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-[#C9CED6]"
+              >
+                Pedir orçamento pelo WhatsApp
+              </button>
+            </div>
+            <img
+              src="/editorial/natureza-morta.webp"
+              alt="Vaso laranja, escultura em nó branca e chaveiro azul escrito Sinop, todos impressos em 3D"
+              loading="lazy"
+              className="still-life w-full lg:col-span-7"
+            />
           </div>
         </section>
-      )}
-
-      {/* Como Comprar - Mais Profissional */}
-      <section className="py-24 md:py-32" style={{ backgroundColor: 'var(--bg)' }}>
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight" style={{ color: 'var(--text)' }}>
-              Formas de Compra
-            </h2>
-            <p className="text-lg max-w-2xl mx-auto" style={{ color: 'var(--text-2)' }}>
-              Escolha a opção que melhor se adequa às suas necessidades
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            <Card className="border border-gray-200 hover:border-primary-200 transition-all duration-300">
-              <CardContent className="p-10">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ backgroundColor: 'var(--accent-soft)' }}>
-                    <FaShoppingCart style={{ color: 'var(--accent)' }} size={24} />
-                  </div>
-                  <h3 className="text-2xl font-bold" style={{ color: 'var(--text)' }}>Mercado Livre</h3>
-                </div>
-                <p className="text-base leading-relaxed mb-8" style={{ color: 'var(--text-2)' }}>
-                  Compre diretamente pelo Mercado Livre com segurança e facilidade. 
-                  Frete calculado automaticamente para todo o Brasil.
-                </p>
-                <ul className="space-y-3 text-sm" style={{ color: 'var(--text-2)' }}>
-                  <li className="flex items-start gap-3">
-                    <FaCheckCircle className="mt-0.5 flex-shrink-0" style={{ color: 'var(--success)' }} size={16} />
-                    <span>Pagamento seguro e protegido</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <FaCheckCircle className="mt-0.5 flex-shrink-0" style={{ color: 'var(--success)' }} size={16} />
-                    <span>Frete calculado automaticamente</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <FaCheckCircle className="mt-0.5 flex-shrink-0" style={{ color: 'var(--success)' }} size={16} />
-                    <span>Entrega para todo o Brasil</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-            <Card className="border border-gray-200 hover:border-success-200 transition-all duration-300">
-              <CardContent className="p-10">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ backgroundColor: 'var(--success-soft)' }}>
-                    <FaWhatsapp style={{ color: 'var(--success)' }} size={24} />
-                  </div>
-                  <h3 className="text-2xl font-bold" style={{ color: 'var(--text)' }}>WhatsApp</h3>
-                </div>
-                <p className="text-base leading-relaxed mb-8" style={{ color: 'var(--text-2)' }}>
-                  Entre em contato pelo WhatsApp para combinar entrega local sem frete, 
-                  personalizações ou esclarecer dúvidas sobre nossos produtos.
-                </p>
-                <ul className="space-y-3 text-sm" style={{ color: 'var(--text-2)' }}>
-                  <li className="flex items-start gap-3">
-                    <FaCheckCircle className="mt-0.5 flex-shrink-0" style={{ color: 'var(--success)' }} size={16} />
-                    <span>Atendimento personalizado e direto</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <FaCheckCircle className="mt-0.5 flex-shrink-0" style={{ color: 'var(--success)' }} size={16} />
-                    <span>Entrega local sem custo adicional</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <FaCheckCircle className="mt-0.5 flex-shrink-0" style={{ color: 'var(--success)' }} size={16} />
-                    <span>Personalizações sob medida</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-    </div>
+      </div>
+    </MotionConfig>
   );
 }

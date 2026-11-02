@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import MediaUploader from '../../components/admin/MediaUploader';
 import api from '../../services/api';
@@ -11,6 +11,9 @@ import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { PRODUCT_STATUS } from '../../lib/constants';
 import { FaSave, FaTimes } from 'react-icons/fa';
+import { formatBytes } from '../../utils/formatters';
+
+const ModelViewer = lazy(() => import('../../components/three/ModelViewer'));
 
 export default function AdminProductEdit() {
   const { id } = useParams();
@@ -44,7 +47,9 @@ export default function AdminProductEdit() {
     historiaTitulo: '',
     historiaTexto: '',
     stlLink: '',
+    publicado: true,
   });
+  const [modelo, setModelo] = useState(null);
 
   useEffect(() => {
     loadCategories();
@@ -100,7 +105,9 @@ export default function AdminProductEdit() {
         historiaTitulo: product.historiaTitulo || '',
         historiaTexto: product.historiaTexto || '',
         stlLink: product.stlLink || '',
+        publicado: product.publicado !== false,
       });
+      setModelo(product.modeloUrl ? { url: product.modeloUrl, arquivo: product.modeloArquivo, tamanho: product.modeloTamanho } : null);
 
       setMedia(product.media || []);
     } catch (error) {
@@ -302,9 +309,32 @@ export default function AdminProductEdit() {
                 label="Produto em Destaque"
                 hint="Aparecerá na home"
               />
+              <Switch
+                checked={formData.publicado}
+                onChange={(checked) => setFormData({ ...formData, publicado: checked })}
+                label="Publicado no site"
+                hint="Desligado, fica como rascunho e só aparece aqui no painel"
+              />
             </div>
           </CardContent>
         </Card>
+
+        {modelo && (
+          <Card>
+            <CardHeader>
+              <h2 className="text-lg font-semibold" style={{ color: 'var(--text)' }}>Modelo 3D</h2>
+              <p className="mt-1 truncate text-sm text-ink/55">{modelo.arquivo} ({formatBytes(modelo.tamanho)})</p>
+            </CardHeader>
+            <CardContent>
+              <div className="relative aspect-video overflow-hidden rounded-card bg-cobalt">
+                <Suspense fallback={null}>
+                  <ModelViewer url={modelo.url} ext={modelo.arquivo.split('.').pop().toLowerCase()} className="absolute inset-0" />
+                </Suspense>
+              </div>
+              <p className="mt-2 text-sm text-ink/55">Aparece na página do produto como a aba 3D.</p>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Seção 4: Descrições */}
         <Card>

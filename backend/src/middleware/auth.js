@@ -26,3 +26,13 @@ export const authenticateToken = (req, res, next) => {
   });
 };
 
+
+// Rotas públicas que mostram mais coisas para o admin logado (ex.: rascunhos)
+export const optionalAuth = (req, res, next) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+  if (!token) return next();
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (!err) req.user = user;
+    next();
+  });
+};

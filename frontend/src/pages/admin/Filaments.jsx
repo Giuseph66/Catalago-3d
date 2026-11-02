@@ -123,7 +123,7 @@ export default function Filaments() {
             </div>
 
             {/* Desktop Table */}
-            <div className="hidden md:block bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
@@ -232,7 +232,7 @@ export default function Filaments() {
             {/* Mobile Cards View */}
             <div className="md:hidden space-y-4">
                 {filaments.length === 0 ? (
-                    <div className="p-8 text-center text-gray-500 bg-white rounded-3xl border border-dashed border-gray-200">
+                    <div className="p-8 text-center text-gray-500 bg-white rounded-xl border border-dashed border-gray-200">
                         Nenhum filamento cadastrado.
                     </div>
                 ) : (
@@ -242,12 +242,12 @@ export default function Filaments() {
                         const percentualRestante = Math.min(100, Math.max(0, (pesoRestante / capacidade) * 100)).toFixed(1);
 
                         return (
-                            <div key={filament.id} className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 space-y-4">
+                            <div key={filament.id} className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 space-y-4">
                                 <div className="flex justify-between items-start">
                                     <div className="flex gap-3">
                                         {filament.cor && (
                                             <div
-                                                className="w-10 h-10 rounded-2xl border border-gray-100 shadow-inner shrink-0"
+                                                className="w-10 h-10 rounded-xl border border-gray-100 shadow-inner shrink-0"
                                                 style={{ backgroundColor: filament.cor }}
                                             ></div>
                                         )}
@@ -292,7 +292,7 @@ export default function Filaments() {
                                     </Button>
                                     <button
                                         onClick={() => handleDelete(filament.id)}
-                                        className="p-3 text-danger bg-danger-soft rounded-2xl hover:brightness-95 transition-all"
+                                        className="p-3 text-danger bg-danger-soft rounded-xl hover:brightness-95 transition-all"
                                     >
                                         <FaTrash size={14} />
                                     </button>

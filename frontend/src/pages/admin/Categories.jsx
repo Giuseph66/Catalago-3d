@@ -122,7 +122,7 @@ export default function AdminCategories() {
       ) : (
         <div className="space-y-4">
           <div className="hidden md:block">
-            <Card className="rounded-3xl overflow-hidden border-none shadow-xl shadow-gray-200/50">
+            <Card className="rounded-xl overflow-hidden border-none shadow-xl shadow-gray-200/50">
               <CardHeader className="bg-white border-b border-gray-50 px-8 py-6">
                 <h2 className="text-xl font-extrabold text-gray-800">
                   {categories.length} {categories.length === 1 ? 'Categoria' : 'Categorias'}
@@ -142,7 +142,7 @@ export default function AdminCategories() {
                     {categories.map((category) => (
                       <TableRow key={category.id} className="hover:bg-primary-50/30 transition-colors border-b border-gray-50 last:border-0 group">
                         <TableCell className="py-4 px-8">
-                          <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-2xl shadow-sm border border-gray-100 group-hover:scale-110 transition-transform">
+                          <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-2xl shadow-sm border border-gray-100 group-hover:scale-110 transition-transform">
                             {category.icone || '📁'}
                           </div>
                         </TableCell>
@@ -180,8 +180,8 @@ export default function AdminCategories() {
 
           <div className="md:hidden grid grid-cols-1 gap-4">
             {categories.map((category) => (
-              <div key={category.id} className="bg-white rounded-[2.5rem] p-5 shadow-xl shadow-gray-200/30 border border-gray-50 flex items-center gap-4">
-                <div className="w-16 h-16 bg-gray-50 rounded-3xl flex items-center justify-center text-3xl shadow-inner border border-gray-100 shrink-0">
+              <div key={category.id} className="bg-white rounded-xl p-5 shadow-xl shadow-gray-200/30 border border-gray-50 flex items-center gap-4">
+                <div className="w-16 h-16 bg-gray-50 rounded-xl flex items-center justify-center text-3xl shadow-inner border border-gray-100 shrink-0">
                   {category.icone || '📁'}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -191,13 +191,13 @@ export default function AdminCategories() {
                 <div className="flex gap-2 shrink-0">
                   <button
                     onClick={() => handleEdit(category)}
-                    className="p-3 bg-primary-50 text-primary-600 rounded-2xl active:scale-90 transition-all"
+                    className="p-3 bg-primary-50 text-primary-600 rounded-xl active:scale-90 transition-all"
                   >
                     <FaEdit size={16} />
                   </button>
                   <button
                     onClick={() => handleDelete(category.id, category.nome)}
-                    className="p-3 bg-danger-soft text-danger rounded-2xl active:scale-90 transition-all"
+                    className="p-3 bg-danger-soft text-danger rounded-xl active:scale-90 transition-all"
                   >
                     <FaTrash size={16} />
                   </button>

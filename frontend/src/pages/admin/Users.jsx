@@ -210,7 +210,7 @@ export default function AdminUsers() {
       ) : (
         <div className="space-y-4">
           <div className="hidden md:block">
-            <Card className="rounded-3xl overflow-hidden border-none shadow-xl shadow-gray-200/50">
+            <Card className="rounded-xl overflow-hidden border-none shadow-xl shadow-gray-200/50">
               <CardHeader className="bg-white border-b border-gray-50 px-8 py-6">
                 <h2 className="text-xl font-extrabold text-gray-800">
                   {users.length} {users.length === 1 ? 'Usuário' : 'Usuários'}
@@ -290,7 +290,7 @@ export default function AdminUsers() {
             {users.map((row) => {
               const isCurrentUser = row.id === authUser?.id;
               return (
-                <div key={row.id} className="bg-white rounded-[2.5rem] p-6 shadow-xl shadow-gray-200/30 border border-gray-50 space-y-4">
+                <div key={row.id} className="bg-white rounded-xl p-6 shadow-xl shadow-gray-200/30 border border-gray-50 space-y-4">
                   <div className="flex justify-between items-start">
                     <div className="space-y-1">
                       <h3 className="font-extrabold text-gray-800 text-lg leading-tight uppercase tracking-tight flex items-center gap-2">
@@ -314,14 +314,14 @@ export default function AdminUsers() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => openEditModal(row)}
-                        className="p-3 bg-primary-50 text-primary-600 rounded-2xl active:scale-90 transition-all"
+                        className="p-3 bg-primary-50 text-primary-600 rounded-xl active:scale-90 transition-all"
                       >
                         <FaEdit size={18} />
                       </button>
                       <button
                         onClick={() => handleDelete(row)}
                         disabled={isCurrentUser}
-                        className="p-3 bg-danger-soft text-danger rounded-2xl active:scale-90 transition-all disabled:opacity-20"
+                        className="p-3 bg-danger-soft text-danger rounded-xl active:scale-90 transition-all disabled:opacity-20"
                       >
                         <FaTrash size={18} />
                       </button>

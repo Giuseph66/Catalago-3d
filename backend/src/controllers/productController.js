@@ -1,5 +1,6 @@
 import db from '../config/database.js';
 import { slugify, calculatePrice } from '../utils/helpers.js';
+import { rawUrl } from '../utils/github.js';
 
 function getPrecoPorGrama() {
   try {
@@ -8,6 +9,11 @@ function getPrecoPorGrama() {
   } catch {
     return 1.0;
   }
+}
+
+// URL pública do modelo 3D no GitHub (o navegador baixa direto, sem passar pela API)
+function withModelo(product) {
+  return { ...product, publicado: product.publicado !== 0, modeloUrl: rawUrl(product.modeloArquivo) };
 }
 
 function getProductPrice(product) {
@@ -36,8 +42,11 @@ export const listProducts = (req, res) => {
     } = req.query;
 
     const offset = (parseInt(page) - 1) * parseInt(limit);
+    // Rascunhos (ex.: importados do GitHub) só aparecem para o admin que pedir
+    const incluirRascunhos = Boolean(req.user) && req.query.rascunhos === '1';
     let query = 'SELECT * FROM products WHERE 1=1';
     const params = [];
+    if (!incluirRascunhos) query += ' AND publicado = 1';
 
     if (search) {
       query += ' AND (nome LIKE ? OR descricaoCurta LIKE ? OR descricaoCompleta LIKE ?)';
@@ -84,7 +93,7 @@ export const listProducts = (req, res) => {
     const productsWithMedia = products.map(product => {
       const media = db.prepare('SELECT * FROM media WHERE produtoId = ? ORDER BY ordem, id').all(product.id);
       return {
-        ...product,
+        ...withModelo(product),
         categorias: JSON.parse(product.categorias || '[]'),
         tags: JSON.parse(product.tags || '[]'),
         historiaMidia: JSON.parse(product.historiaMidia || '[]'),
@@ -96,6 +105,7 @@ export const listProducts = (req, res) => {
     // Contar total
     let countQuery = 'SELECT COUNT(*) as total FROM products WHERE 1=1';
     const countParams = [];
+    if (!incluirRascunhos) countQuery += ' AND publicado = 1';
     if (search) {
       countQuery += ' AND (nome LIKE ? OR descricaoCurta LIKE ? OR descricaoCompleta LIKE ?)';
       const searchTerm = `%${search}%`;
@@ -152,7 +162,7 @@ export const getProductById = (req, res) => {
     console.log('📦 Backend: Mídias encontradas:', media.length);
 
     const productData = {
-      ...product,
+      ...withModelo(product),
       categorias: JSON.parse(product.categorias || '[]'),
       tags: JSON.parse(product.tags || '[]'),
       historiaMidia: JSON.parse(product.historiaMidia || '[]'),
@@ -178,12 +188,14 @@ export const getProductBySlug = (req, res) => {
 
     const product = db.prepare('SELECT * FROM products WHERE slug = ?').get(slug);
 
-    if (!product) {
+    if (!product || (product.publicado === 0 && !req.user)) {
       return res.status(404).json({ error: 'Produto não encontrado' });
     }
 
-    // Incrementar views
-    db.prepare('UPDATE products SET views = views + 1 WHERE id = ?').run(product.id);
+    // Incrementar views (prévia de rascunho pelo admin não conta)
+    if (product.publicado !== 0) {
+      db.prepare('UPDATE products SET views = views + 1 WHERE id = ?').run(product.id);
+    }
 
     // Buscar mídias
     const media = db.prepare('SELECT * FROM media WHERE produtoId = ? ORDER BY ordem, id').all(product.id);
@@ -192,7 +204,7 @@ export const getProductBySlug = (req, res) => {
     const testimonials = db.prepare('SELECT * FROM testimonials WHERE produtoId = ? ORDER BY createdAt DESC').all(product.id);
 
     const productData = {
-      ...product,
+      ...withModelo(product),
       categorias: JSON.parse(product.categorias || '[]'),
       tags: JSON.parse(product.tags || '[]'),
       historiaMidia: JSON.parse(product.historiaMidia || '[]'),
@@ -230,7 +242,12 @@ export const createProduct = (req, res) => {
       mensagemWhatsAppTemplate,
       historiaTitulo,
       historiaTexto,
-      historiaMidia = []
+      historiaMidia = [],
+      stlLink,
+      stlPath,
+      modeloArquivo,
+      modeloTamanho,
+      publicado = true
     } = req.body;
 
     const productSlug = slug || slugify(nome);
@@ -245,8 +262,9 @@ export const createProduct = (req, res) => {
       INSERT INTO products (
         nome, slug, descricaoCurta, descricaoCompleta, peso, altura, largura, profundidade, material, cor, preco,
         categorias, tags, status, destaque, linkMercadoLivre,
-        mensagemWhatsAppTemplate, historiaTitulo, historiaTexto, historiaMidia
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        mensagemWhatsAppTemplate, historiaTitulo, historiaTexto, historiaMidia,
+        stlLink, stlPath, modeloArquivo, modeloTamanho, publicado
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       nome,
       productSlug,
@@ -267,13 +285,18 @@ export const createProduct = (req, res) => {
       mensagemWhatsAppTemplate || null,
       historiaTitulo || null,
       historiaTexto || null,
-      JSON.stringify(historiaMidia)
+      JSON.stringify(historiaMidia),
+      stlLink || null,
+      stlPath || null,
+      modeloArquivo || null,
+      modeloTamanho ? parseInt(modeloTamanho) : null,
+      publicado ? 1 : 0
     );
 
     const newProduct = db.prepare('SELECT * FROM products WHERE id = ?').get(result.lastInsertRowid);
 
     res.status(201).json({
-      ...newProduct,
+      ...withModelo(newProduct),
       categorias: JSON.parse(newProduct.categorias || '[]'),
       tags: JSON.parse(newProduct.tags || '[]'),
       historiaMidia: JSON.parse(newProduct.historiaMidia || '[]'),
@@ -308,7 +331,12 @@ export const updateProduct = (req, res) => {
       mensagemWhatsAppTemplate,
       historiaTitulo,
       historiaTexto,
-      historiaMidia
+      historiaMidia,
+      stlLink,
+      stlPath,
+      modeloArquivo,
+      modeloTamanho,
+      publicado
     } = req.body;
 
     const product = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
@@ -414,6 +442,26 @@ export const updateProduct = (req, res) => {
       updateFields.push('historiaMidia = ?');
       updateValues.push(JSON.stringify(historiaMidia));
     }
+    if (stlLink !== undefined) {
+      updateFields.push('stlLink = ?');
+      updateValues.push(stlLink || null);
+    }
+    if (stlPath !== undefined) {
+      updateFields.push('stlPath = ?');
+      updateValues.push(stlPath || null);
+    }
+    if (modeloArquivo !== undefined) {
+      updateFields.push('modeloArquivo = ?');
+      updateValues.push(modeloArquivo || null);
+    }
+    if (modeloTamanho !== undefined) {
+      updateFields.push('modeloTamanho = ?');
+      updateValues.push(modeloTamanho ? parseInt(modeloTamanho) : null);
+    }
+    if (publicado !== undefined) {
+      updateFields.push('publicado = ?');
+      updateValues.push(publicado ? 1 : 0);
+    }
 
     updateFields.push('updatedAt = CURRENT_TIMESTAMP');
     updateValues.push(id);
@@ -425,7 +473,7 @@ export const updateProduct = (req, res) => {
     const updatedProduct = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
 
     res.json({
-      ...updatedProduct,
+      ...withModelo(updatedProduct),
       categorias: JSON.parse(updatedProduct.categorias || '[]'),
       tags: JSON.parse(updatedProduct.tags || '[]'),
       historiaMidia: JSON.parse(updatedProduct.historiaMidia || '[]'),

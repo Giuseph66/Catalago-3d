@@ -196,6 +196,19 @@ try {
   if (!columnNames.includes('stlLink')) {
     db.exec('ALTER TABLE products ADD COLUMN stlLink TEXT');
   }
+  // Importação do repositório de modelos no GitHub
+  if (!columnNames.includes('stlPath')) {
+    db.exec('ALTER TABLE products ADD COLUMN stlPath TEXT');
+  }
+  if (!columnNames.includes('modeloArquivo')) {
+    db.exec('ALTER TABLE products ADD COLUMN modeloArquivo TEXT');
+  }
+  if (!columnNames.includes('modeloTamanho')) {
+    db.exec('ALTER TABLE products ADD COLUMN modeloTamanho INTEGER');
+  }
+  if (!columnNames.includes('publicado')) {
+    db.exec('ALTER TABLE products ADD COLUMN publicado INTEGER NOT NULL DEFAULT 1');
+  }
 
   // Migration for print_jobs reordering
   const printJobsInfo = db.prepare("PRAGMA table_info(print_jobs)").all();

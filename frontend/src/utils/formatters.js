@@ -5,6 +5,12 @@ export function formatPrice(value) {
   }).format(value);
 }
 
+export function formatBytes(bytes) {
+  if (!bytes && bytes !== 0) return '';
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(bytes < 10 * 1024 * 1024 ? 1 : 0).replace('.', ',')} MB`;
+}
+
 export function formatWeight(grams) {
   if (grams >= 1000) {
     return `${(grams / 1000).toFixed(2)} kg`;

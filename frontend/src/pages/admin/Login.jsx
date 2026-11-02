@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -38,33 +37,37 @@ export default function AdminLogin() {
 
       navigate('/admin', { replace: true });
     } catch {
-      setError('Erro ao fazer login');
+      setError('Não foi possível entrar. Confira sua conexão e tente de novo.');
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: 'var(--bg)' }}>
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <h1 className="text-2xl font-bold text-center" style={{ color: 'var(--primary)' }}>
-            Admin - Catálogo 3D
-          </h1>
-          <p className="text-sm text-center mt-2" style={{ color: 'var(--text-2)' }}>
-            Entrar no painel
-          </p>
-        </CardHeader>
+    <div className="grid min-h-screen bg-paper lg:grid-cols-2">
+      <div className="relative hidden overflow-hidden bg-cobalt text-paper lg:block">
+        <p className="absolute left-10 top-8 font-display text-[40px] font-black uppercase leading-none tracking-tight">
+          Neurelix 3D
+        </p>
+        <img
+          src="/editorial/vaso-00.webp"
+          alt=""
+          className="turntable-still absolute inset-x-0 bottom-0 mx-auto h-[82%] object-contain"
+        />
+        <p className="absolute bottom-8 left-10 max-w-xs font-serif text-lg italic text-paper/80">
+          Produtos, fila de produção e filamentos em um lugar só.
+        </p>
+      </div>
 
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-5">
+      <div className="flex items-center justify-center px-4 py-16 sm:px-8">
+        <div className="w-full max-w-sm">
+          <p className="font-display text-3xl font-black uppercase leading-none tracking-tight lg:hidden">Neurelix 3D</p>
+          <h1 className="mt-8 text-5xl leading-[0.9] lg:mt-0">Entrar no painel</h1>
+          <p className="mt-3 font-serif text-lg text-ink/65">Use o e-mail e a senha de administrador.</p>
+
+          <form onSubmit={handleSubmit} className="mt-10 space-y-5">
             {error && (
               <div
-                className="px-4 py-3 rounded-input text-sm"
-                style={{
-                  backgroundColor: 'var(--danger-soft)',
-                  color: 'var(--danger)',
-                  border: '1px solid var(--danger)',
-                }}
+                className="rounded-input border border-danger/40 bg-danger-soft px-4 py-3 text-sm text-danger"
                 role="alert"
               >
                 {error}
@@ -72,7 +75,7 @@ export default function AdminLogin() {
             )}
 
             <Input
-              label="Email"
+              label="E-mail"
               type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
@@ -90,17 +93,19 @@ export default function AdminLogin() {
             />
 
             <Button type="submit" disabled={loading} loading={loading} className="w-full">
-              {loading ? 'Entrando...' : 'Entrar'}
+              {loading ? 'Entrando…' : 'Entrar'}
             </Button>
           </form>
 
+          <a href="/" className="mt-8 inline-block font-serif text-base text-ink/60 underline decoration-ink/20 underline-offset-4 hover:text-ink">
+            Voltar ao site
+          </a>
+
           {import.meta.env.DEV && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <p className="text-xs text-gray-500 text-center">API URL: {apiUrl}</p>
-            </div>
+            <p className="mt-6 border-t border-ink/10 pt-4 text-xs text-ink/45">API: {apiUrl}</p>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

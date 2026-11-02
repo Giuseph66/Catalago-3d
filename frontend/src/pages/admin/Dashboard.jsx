@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
-import { FaBox, FaTags, FaComments, FaEye, FaPlus } from 'react-icons/fa';
+import { FaPlus } from 'react-icons/fa';
 import { Button } from '../../components/ui/Button';
-import { Card, CardContent } from '../../components/ui/Card';
 import { Skeleton } from '../../components/ui/Skeleton';
+
+const numero = new Intl.NumberFormat('pt-BR');
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -13,6 +14,7 @@ export default function AdminDashboard() {
     testimonials: 0,
     totalViews: 0
   });
+  const [maisVistos, setMaisVistos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,7 +24,7 @@ export default function AdminDashboard() {
   const loadStats = async () => {
     try {
       const [productsRes, categoriesRes, testimonialsRes] = await Promise.all([
-        api.get('/products?limit=1'),
+        api.get('/products?limit=1000&orderBy=views&orderDir=DESC'),
         api.get('/categories'),
         api.get('/testimonials')
       ]);
@@ -31,11 +33,12 @@ export default function AdminDashboard() {
       const totalViews = products.reduce((sum, p) => sum + (p.views || 0), 0);
 
       setStats({
-        products: productsRes.data.pagination?.total || 0,
+        products: productsRes.data.pagination?.total || products.length,
         categories: categoriesRes.data?.length || 0,
         testimonials: testimonialsRes.data?.length || 0,
         totalViews
       });
+      setMaisVistos(products.filter((p) => p.views > 0).slice(0, 5));
     } catch (error) {
       console.error('Erro ao carregar estatísticas:', error);
     } finally {
@@ -43,128 +46,101 @@ export default function AdminDashboard() {
     }
   };
 
-  const statCards = [
-    {
-      icon: FaBox,
-      label: 'Produtos',
-      value: stats.products,
-      color: 'var(--primary)',
-      bgColor: 'var(--primary-soft)',
-      link: '/admin/produtos'
-    },
-    {
-      icon: FaTags,
-      label: 'Categorias',
-      value: stats.categories,
-      color: 'var(--accent)',
-      bgColor: 'var(--accent-soft)',
-      link: '/admin/categorias'
-    },
-    {
-      icon: FaComments,
-      label: 'Depoimentos',
-      value: stats.testimonials,
-      color: 'var(--warning)',
-      bgColor: 'var(--warning-soft)',
-      link: '/admin/depoimentos'
-    },
-    {
-      icon: FaEye,
-      label: 'Visualizações',
-      value: stats.totalViews,
-      color: 'var(--info)',
-      bgColor: 'var(--info-soft)',
-      link: null
-    },
+  const statItems = [
+    { label: 'Produtos', value: stats.products, link: '/admin/produtos' },
+    { label: 'Categorias', value: stats.categories, link: '/admin/categorias' },
+    { label: 'Depoimentos', value: stats.testimonials, link: '/admin/depoimentos' },
+    { label: 'Visualizações no site', value: stats.totalViews, link: null },
   ];
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text)' }}>
-          Dashboard
-        </h1>
-        <p className="text-sm" style={{ color: 'var(--text-2)' }}>
-          Visão geral do seu catálogo
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-4 border-b-[3px] border-ink pb-4">
+        <div>
+          <h1 className="text-5xl leading-[0.9] md:text-6xl">Visão geral</h1>
+          <p className="mt-2 font-serif text-lg text-ink/60">O catálogo em números.</p>
+        </div>
+        <Button as={Link} to="/admin/produtos/novo" leftIcon={<FaPlus size={12} />}>
+          Novo produto
+        </Button>
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map(i => (
-            <Skeleton key={i} className="h-32" />
+        <div className="mt-8 grid grid-cols-2 gap-6 lg:grid-cols-4">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-24" />
           ))}
         </div>
       ) : (
-        <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {statCards.map((stat, i) => {
-            const Icon = stat.icon;
+        <dl className="mt-2 grid grid-cols-2 lg:grid-cols-4">
+          {statItems.map((stat) => {
             const content = (
-              <Card className="hover:shadow-card-hover transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div
-                      className="w-12 h-12 rounded-lg flex items-center justify-center"
-                      style={{ backgroundColor: stat.bgColor }}
-                    >
-                      <Icon size={24} style={{ color: stat.color }} />
-                    </div>
-                  </div>
-                  <div className="mb-1">
-                    <span className="text-3xl font-bold" style={{ color: 'var(--text)' }}>
-                      {stat.value}
-                    </span>
-                  </div>
-                  <p className="text-sm" style={{ color: 'var(--text-2)' }}>
-                    {stat.label}
-                  </p>
-                </CardContent>
-              </Card>
+              <>
+                <dd className="font-display text-6xl font-black leading-none text-ink">{numero.format(stat.value)}</dd>
+                <dt className="mt-2 text-sm font-medium text-ink/60">{stat.label}</dt>
+              </>
             );
-
-            return stat.link ? (
-              <Link key={i} to={stat.link} className="block">
-                {content}
-              </Link>
-            ) : (
-              <div key={i}>{content}</div>
+            return (
+              <div key={stat.label} className="border-b border-ink/10 py-6 pr-4 lg:border-b-0 lg:border-r lg:pl-6 lg:first:pl-0 lg:last:border-r-0">
+                {stat.link ? (
+                  <Link to={stat.link} className="flex flex-col-reverse hover:[&_dd]:text-cobalt">
+                    {content}
+                  </Link>
+                ) : (
+                  <div className="flex flex-col-reverse">{content}</div>
+                )}
+              </div>
             );
           })}
-        </div>
+        </dl>
       )}
 
-      <Card>
-        <CardContent className="p-6">
-          <h2 className="text-xl font-semibold mb-6" style={{ color: 'var(--text)' }}>
-            Ações Rápidas
-          </h2>
-          <div className="flex flex-wrap gap-4">
-            <Button
-              as={Link}
-              to="/admin/produtos/novo"
-              leftIcon={<FaPlus />}
-            >
-              Novo Produto
-            </Button>
-            <Button
-              as={Link}
-              to="/admin/categorias"
-              variant="secondary"
-              leftIcon={<FaPlus />}
-            >
-              Nova Categoria
-            </Button>
-            <Button
-              as={Link}
-              to="/admin/depoimentos"
-              variant="outline"
-              leftIcon={<FaPlus />}
-            >
-              Novo Depoimento
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="mt-10 grid gap-10 lg:grid-cols-12">
+        <section className="lg:col-span-7">
+          <h2 className="text-3xl">Mais vistos no site</h2>
+          {maisVistos.length === 0 ? (
+            <p className="mt-4 font-serif text-lg text-ink/60">
+              Ainda não há visitas registradas. Os produtos aparecem aqui conforme forem abertos no site.
+            </p>
+          ) : (
+            <ol className="mt-4 divide-y divide-ink/10 border-y border-ink/10">
+              {maisVistos.map((product, index) => (
+                <li key={product.id}>
+                  <Link
+                    to={`/admin/produtos/${product.id}`}
+                    className="flex items-center gap-4 py-3 hover:bg-white/60"
+                  >
+                    <span className="w-6 font-display text-2xl font-black text-ink/30">{index + 1}</span>
+                    <span className="flex-1 truncate font-medium">{product.nome}</span>
+                    <span className="text-sm tabular-nums text-ink/60">
+                      {numero.format(product.views)} {product.views === 1 ? 'visita' : 'visitas'}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          )}
+        </section>
+
+        <section className="lg:col-span-4 lg:col-start-9">
+          <h2 className="text-3xl">Atalhos</h2>
+          <ul className="mt-4 divide-y divide-ink/10 border-y border-ink/10">
+            {[
+              { to: '/admin/fila-producao', label: 'Ver a fila de produção' },
+              { to: '/admin/filamentos', label: 'Conferir estoque de filamento' },
+              { to: '/admin/categorias', label: 'Organizar categorias' },
+              { to: '/admin/depoimentos', label: 'Adicionar depoimento' },
+              { to: '/admin/configuracoes', label: 'Ajustar WhatsApp e loja' },
+            ].map((item) => (
+              <li key={item.to}>
+                <Link to={item.to} className="block py-3 font-medium hover:text-cobalt">
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
     </div>
   );
 }

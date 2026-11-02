@@ -11,16 +11,19 @@ import {
   FaBars,
   FaLayerGroup,
   FaTshirt,
-  FaUsers
+  FaUsers,
+  FaExternalLinkAlt,
+  FaGithub
 } from 'react-icons/fa';
 import { Drawer } from '../ui/Drawer';
 import { cn } from '../../lib/utils';
 
 const menuItems = [
-  { path: '/admin', icon: FaHome, label: 'Dashboard' },
+  { path: '/admin', icon: FaHome, label: 'Visão geral' },
   { path: '/admin/produtos', icon: FaBox, label: 'Produtos' },
+  { path: '/admin/importar', icon: FaGithub, label: 'Importar do GitHub' },
   { path: '/admin/categorias', icon: FaTags, label: 'Categorias' },
-  { path: '/admin/fila-producao', icon: FaLayerGroup, label: 'Fila de Produção' },
+  { path: '/admin/fila-producao', icon: FaLayerGroup, label: 'Fila de produção' },
   { path: '/admin/filamentos', icon: FaTshirt, label: 'Filamentos' },
   { path: '/admin/usuarios', icon: FaUsers, label: 'Usuários' },
   { path: '/admin/depoimentos', icon: FaComments, label: 'Depoimentos' },
@@ -30,7 +33,7 @@ const menuItems = [
 export function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = () => {
@@ -39,110 +42,105 @@ export function AdminLayout() {
   };
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full bg-white/80 backdrop-blur-xl border-r border-white/20 shadow-2xl overflow-hidden">
-      <div className="p-6 text-center">
-        <Link to="/admin" className="inline-flex items-center gap-3 group">
-          <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-accent rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-            <FaLayerGroup className="text-white" />
-          </div>
-          <span className="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-primary-500 via-primary-600 to-accent-500 tracking-tight">
-            Neurelix 3D
-          </span>
+    <div className="flex h-full flex-col bg-ink text-paper">
+      <div className="px-6 pb-6 pt-7">
+        <Link to="/admin" className="block font-display text-[32px] font-black uppercase leading-none tracking-tight">
+          Neurelix 3D
         </Link>
+        <p className="mt-1 font-serif text-base italic text-paper/50">Painel de gestão</p>
       </div>
 
-      <nav className="flex-1 space-y-2 p-4 overflow-y-auto custom-scrollbar">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname === item.path ||
-            (item.path !== '/admin' && location.pathname.startsWith(item.path));
+      <nav aria-label="Painel" className="flex-1 overflow-y-auto px-3">
+        <ul className="space-y-0.5">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path ||
+              (item.path !== '/admin' && location.pathname.startsWith(item.path));
 
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={() => setSidebarOpen(false)}
-              className={cn(
-                'flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group',
-                isActive
-                  ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/30'
-                  : 'text-gray-500 hover:bg-primary-50 hover:text-primary-600'
-              )}
-            >
-              <div className={cn(
-                "p-2 rounded-lg transition-colors",
-                isActive ? "bg-white/20" : "bg-gray-50 group-hover:bg-white"
-              )}>
-                <Icon className={isActive ? "text-white" : "text-gray-400 group-hover:text-primary-500"} />
-              </div>
-              <span className="font-semibold tracking-tight">{item.label}</span>
-              {isActive && (
-                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white shadow-sm" />
-              )}
-            </Link>
-          );
-        })}
+            return (
+              <li key={item.path}>
+                <Link
+                  to={item.path}
+                  onClick={() => setSidebarOpen(false)}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={cn(
+                    'relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] font-medium transition-colors',
+                    isActive ? 'bg-paper/10 text-paper' : 'text-paper/60 hover:bg-paper/5 hover:text-paper'
+                  )}
+                >
+                  {isActive && <span className="absolute -left-3 top-2 bottom-2 w-1 rounded-r bg-[#5B74F0]" />}
+                  <Icon size={15} className={isActive ? 'text-[#8FA2FF]' : 'text-paper/40'} />
+                  {item.label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       </nav>
 
-      <div className="p-4 border-t border-gray-100">
-        <button
-          onClick={handleLogout}
-          className="flex items-center justify-center gap-3 w-full px-4 py-3 rounded-2xl text-gray-500 hover:bg-danger-soft hover:text-danger transition-all duration-300 font-semibold group"
+      <div className="space-y-1 border-t border-paper/10 p-3">
+        <a
+          href="/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] font-medium text-paper/60 hover:bg-paper/5 hover:text-paper"
         >
-          <div className="p-2 bg-gray-50 rounded-lg group-hover:bg-white transition-colors">
-            <FaSignOutAlt />
-          </div>
-          <span>Sair da Conta</span>
+          <FaExternalLinkAlt size={13} className="text-paper/40" />
+          Ver o site
+        </a>
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[15px] font-medium text-paper/60 hover:bg-paper/5 hover:text-paper"
+        >
+          <FaSignOutAlt size={14} className="text-paper/40" />
+          Sair
+          {user?.email && <span className="ml-auto truncate text-xs text-paper/35">{user.email}</span>}
         </button>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
-      {/* Topbar for Mobile only */}
-      <header className="lg:hidden bg-white/80 backdrop-blur-md border-b sticky top-0 z-40 px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
-          >
-            <FaBars className="text-gray-600" />
-          </button>
-          <span className="font-black text-lg bg-clip-text text-transparent bg-gradient-to-r from-primary-500 via-primary-600 to-accent-500 tracking-tight">
-            Neurelix 3D
-          </span>
-        </div>
+    <div className="min-h-screen bg-paper">
+      <header className="sticky top-0 z-40 flex h-14 items-center justify-between bg-ink px-4 text-paper lg:hidden">
         <button
+          type="button"
+          onClick={() => setSidebarOpen(true)}
+          className="-ml-2 rounded-lg p-2 hover:bg-paper/10"
+          aria-label="Abrir menu"
+        >
+          <FaBars />
+        </button>
+        <span className="font-display text-2xl font-black uppercase tracking-tight">Neurelix 3D</span>
+        <button
+          type="button"
           onClick={handleLogout}
-          className="p-2 rounded-xl bg-danger-soft text-danger"
-          title="Sair"
+          className="-mr-2 rounded-lg p-2 hover:bg-paper/10"
+          aria-label="Sair"
         >
           <FaSignOutAlt />
         </button>
       </header>
 
       <div className="flex">
-        {/* Sidebar Desktop - Fixed & h-screen */}
-        <aside className="hidden lg:block w-72 h-screen sticky top-0 z-50 overflow-hidden">
+        <aside className="sticky top-0 z-50 hidden h-screen w-64 shrink-0 lg:block">
           <SidebarContent />
         </aside>
 
-        {/* Sidebar Mobile */}
         <Drawer
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
-          title="Navegação"
           side="left"
+          className="max-w-[17rem] bg-ink"
         >
-          <div className="h-full bg-white pt-2">
+          <div className="h-full">
             <SidebarContent />
           </div>
         </Drawer>
 
-        {/* Main Content */}
-        <main className="flex-1 min-h-screen overflow-x-hidden">
-          <div className="px-4 sm:px-8 lg:px-12 py-8 max-w-[1600px] mx-auto">
+        <main className="min-h-screen min-w-0 flex-1">
+          <div className="admin-page mx-auto max-w-[1400px] px-4 py-8 sm:px-8 lg:px-12 lg:py-10">
             <Outlet />
           </div>
         </main>

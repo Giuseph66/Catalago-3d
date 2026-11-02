@@ -4,19 +4,19 @@
 
 :root {
   /* Neutros */
-  --bg: #F6F8FC;
+  --bg: #ECEEF1;
   --surface: #FFFFFF;
-  --border: #E6EAF2;
-  --text: #0F172A;
-  --text-2: #475569;
-  --muted: #64748B;
+  --border: #D9DCE2;
+  --text: #16181D;
+  --text-2: #4A4F5A;
+  --muted: #6B717C;
 
   /* Marca */
-  --primary: #6366F1;
-  --primary-hover: #4F46E5;
-  --primary-soft: #EEF2FF;
-  --accent: #06B6D4;
-  --accent-soft: #CFFAFE;
+  --primary: #2340C8;
+  --primary-hover: #1A2F96;
+  --primary-soft: #E4E9FB;
+  --accent: #FF5A1F;
+  --accent-soft: #FFE6DB;
 
   /* Estados */
   --success: #16A34A;
@@ -29,15 +29,15 @@
   --danger-soft: #FEE2E2;
 
   /* Layout */
-  --radius-card: 16px;
-  --radius-input: 16px;
-  --radius-button: 20px;
-  --radius-chip: 12px;
+  --radius-card: 12px;
+  --radius-input: 10px;
+  --radius-button: 9999px;
+  --radius-chip: 9999px;
 
-  --shadow-card: 0 10px 30px rgba(2, 8, 23, 0.08);
-  --shadow-hover: 0 14px 38px rgba(2, 8, 23, 0.12);
+  --shadow-card: 0 1px 2px rgba(22, 24, 29, 0.06);
+  --shadow-hover: 0 6px 20px rgba(22, 24, 29, 0.08);
 
-  --focus: 0 0 0 4px rgba(99, 102, 241, 0.18);
+  --focus: 0 0 0 3px rgba(35, 64, 200, 0.2);
 }
 
 * {
@@ -63,6 +63,14 @@ h6 {
   font-family: 'Inter', system-ui, sans-serif;
   color: var(--text);
   font-weight: 700;
+}
+
+/* Títulos de página usam a fonte do logotipo */
+h1,
+h2 {
+  font-family: 'Big Shoulders Display', Impact, sans-serif;
+  font-weight: 800;
+  letter-spacing: 0;
 }
 
 @layer components {
@@ -188,6 +196,7 @@ h6 {
   /* Tabelas Limpas */
   .clean-table {
     width: 100%;
+    border: 1px solid var(--border);
     background-color: var(--surface);
     border-radius: var(--radius-card);
     overflow: hidden;
@@ -199,18 +208,16 @@ h6 {
   }
 
   .clean-table thead {
-    background-color: #F1F5F9;
+    background-color: #F4F5F7;
     border-bottom: 1px solid var(--border);
   }
 
   .clean-table th {
     padding: 1rem 1.5rem;
     text-align: left;
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     color: var(--text-2);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
   }
 
   .clean-table td {
@@ -226,7 +233,7 @@ h6 {
   }
 
   .clean-table tbody tr:hover {
-    background-color: #F8FAFC;
+    background-color: #F7F8FA;
   }
 
   .clean-table tbody tr:last-child {
@@ -284,4 +291,44 @@ h6 {
   .shadow-card-hover {
     box-shadow: var(--shadow-hover);
   }
+}
+/* ---------- Home editorial ---------- */
+.drop-cap::first-letter {
+  float: left;
+  font-family: 'Big Shoulders Display', Impact, sans-serif;
+  font-weight: 900;
+  font-size: 5.4em;
+  line-height: 0.78;
+  margin: 0.06em 0.08em 0 0;
+  color: #2340C8;
+}
+
+.turntable { touch-action: pan-y; cursor: grab; }
+
+/* A sombra do render ultrapassa o quadro: some nas bordas */
+.turntable img {
+  -webkit-mask-image: radial-gradient(ellipse 56% 62% at 50% 46%, #000 70%, transparent 100%);
+  mask-image: radial-gradient(ellipse 56% 62% at 50% 46%, #000 70%, transparent 100%);
+}
+.turntable:active { cursor: grabbing; }
+
+.still-life {
+  -webkit-mask-image: radial-gradient(ellipse 64% 66% at 52% 48%, #000 74%, transparent 100%);
+  mask-image: radial-gradient(ellipse 64% 66% at 52% 48%, #000 74%, transparent 100%);
+}
+
+.turntable-still {
+  -webkit-mask-image: radial-gradient(ellipse 56% 62% at 50% 46%, #000 70%, transparent 100%);
+  mask-image: radial-gradient(ellipse 56% 62% at 50% 46%, #000 70%, transparent 100%);
+}
+
+/* Títulos de página do painel com o mesmo peso em todas as telas */
+.admin-page h1 {
+  font-size: clamp(2.25rem, 4vw, 3.25rem);
+  line-height: 0.95;
+}
+
+.admin-page h2 {
+  font-size: 1.75rem;
+  line-height: 1;
 }

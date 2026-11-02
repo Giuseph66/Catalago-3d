@@ -150,7 +150,7 @@ export default function AdminTestimonials() {
       ) : (
         <div className="space-y-4">
           <div className="hidden md:block">
-            <Card className="rounded-3xl overflow-hidden border-none shadow-xl shadow-gray-200/50">
+            <Card className="rounded-xl overflow-hidden border-none shadow-xl shadow-gray-200/50">
               <CardHeader className="bg-white border-b border-gray-50 px-8 py-6">
                 <h2 className="text-xl font-extrabold text-gray-800">
                   {testimonials.length} {testimonials.length === 1 ? 'Depoimento' : 'Depoimentos'}
@@ -235,7 +235,7 @@ export default function AdminTestimonials() {
 
           <div className="md:hidden grid grid-cols-1 gap-4">
             {testimonials.map((testimonial) => (
-              <div key={testimonial.id} className="bg-white rounded-[2.5rem] p-6 shadow-xl shadow-gray-200/30 border border-gray-50 space-y-4">
+              <div key={testimonial.id} className="bg-white rounded-xl p-6 shadow-xl shadow-gray-200/30 border border-gray-50 space-y-4">
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-3">
                     {testimonial.fotoUrl ? (
@@ -267,7 +267,7 @@ export default function AdminTestimonials() {
                   </div>
                 </div>
 
-                <div className="bg-gray-50/50 rounded-3xl p-4 border border-gray-100/50 relative">
+                <div className="bg-gray-50/50 rounded-xl p-4 border border-gray-100/50 relative">
                   <span className="absolute -top-2 -left-1 text-4xl text-primary-200/50 font-serif leading-none">“</span>
                   <p className="text-sm font-medium text-gray-600 leading-relaxed italic relative z-10">
                     {testimonial.texto}
@@ -277,13 +277,13 @@ export default function AdminTestimonials() {
                 <div className="flex gap-2 pt-1">
                   <button
                     onClick={() => handleEdit(testimonial)}
-                    className="flex-1 bg-primary-500 text-white font-black h-12 rounded-2xl shadow-lg shadow-primary-500/30 active:scale-95 transition-all text-sm uppercase tracking-wider flex items-center justify-center gap-2"
+                    className="flex-1 bg-primary-500 text-white font-black h-12 rounded-xl shadow-lg active:scale-95 transition-all text-sm uppercase tracking-wider flex items-center justify-center gap-2"
                   >
                     <FaEdit /> Editar
                   </button>
                   <button
                     onClick={() => handleDelete(testimonial.id, testimonial.nome)}
-                    className="p-3 bg-danger-soft text-danger rounded-2xl active:scale-90 transition-all font-bold"
+                    className="p-3 bg-danger-soft text-danger rounded-xl active:scale-90 transition-all font-bold"
                   >
                     <FaTrash size={18} />
                   </button>
